@@ -1,243 +1,280 @@
-Learned Indexes
+# The Case for Learned Index Structures — Notes
 
-- ML opens up the opportunity to learn a model that reflects the patterns in the data
+*Kraska, Beutel, Chi, Dean, Polyzotis (SIGMOD 2018)*
 
-- No current indexes take advantage of the distribution of the data
+---
 
-- Knowing the exact data distribution enables highly optimizing almost any index structure
+## The One Big Idea
 
-- ML opens up the opportunity to learn a model that reflects the patterns in the data and thus to enable the automatic synthesis of specialized index structures, termed learned indexes, with low engineering cost
+**An index is just a model that predicts where data lives.** Replace the hand-built structure with a learned model that captures the data distribution, and add a small auxiliary structure to restore any hard guarantees the model can't give on its own.
 
-- Indexes are already to a large extent learned models, making it surprisingly straightforward to replace them with other types of ML models. 
+Everything in the paper is this idea applied three ways:
 
-- For example, a B-tree can be considered as a model which takes a key as an input and predicts the position of a data record in a sorted set (the data has to be sorted to enable efficient range requests)
+| Index type | Traditional structure | What the model learns |
+|---|---|---|
+| **Range** | B-Tree | CDF → predicts position in sorted array |
+| **Point** | Hash-map | CDF → spreads keys to avoid conflicts |
+| **Existence** | Bloom filter | Classifier → separates keys from non-keys |
 
-- A bloom filtrer is a binary classifier, which based on a key predicts if a key exists in a set or not.
+---
 
-- Significant benefits especially on the next generation of hardware
+## 1. Introduction
 
-- Every CPU already has powerful SIMD capabilities and we speciulate many laptop sand mobile phones will soon have GPU or TPUs (this paper is from 2019, and with the advent of AI this is becoming way more prevalent.)
+- ML opens the opportunity to **learn a model that reflects the patterns in the data**, enabling automatic synthesis of specialized index structures ("learned indexes") with low engineering cost.
+- No current indexes take advantage of the data distribution — they're general-purpose and assume nothing about the data.
+- Knowing the exact distribution lets you highly optimize almost *any* index structure.
+- Indexes are *already* largely learned models, so swapping in other ML models is surprisingly natural:
+  - A **B-Tree** takes a key and predicts the position of a record in a sorted set.
+  - A **Bloom filter** is a binary classifier predicting whether a key exists.
+- **Hardware tailwind:** every CPU has SIMD, and GPUs/TPUs are becoming ubiquitous → the cost of executing a model may become negligible. *(Paper is from 2018; in 2026 this prediction landed — NPUs ship in essentially every flagship phone and "AI" laptop chip. The one catch the paper flagged, invocation latency, is still the live concern.)*
+- **Main contribution:** outline + evaluate a novel approach that *complements* existing work. Key observation: **many data structures decompose into a learned model + an auxiliary structure** that provides the same semantic guarantees.
+- The power comes from using **continuous functions describing the data distribution** to build more efficient structures/algorithms.
+- Open challenges remain — notably **write-heavy workloads**.
 
-- As a result, the high cost to execute a neural net or other ML models might actually be negligible in the future. 
+---
 
-- The main contribution of this paper is to outline and evaluate the potential of a novel approach to build indexes, which complements existing work and opens up an entirely new research direction for a decades old field. This is based on the key observatoin that many data structures can be decomposed into a learned model and an auxiliary structure to provide the same semantic guarantees
+## 2. Range Index
 
-- The potential power of this approach comes from the fact that continuous functions, describing the data distribution, can be used to build more efficient data structures or algorithms
+- A B-Tree over a sorted primary key maps a lookup key → position, guaranteeing the record at that position has the **first key ≥ the lookup key**.
+- The B-Tree is effectively a **regression tree**: maps a key to a position with min-error 0 and max-error = page size, guaranteeing the key is findable in that region if it exists.
+- We can swap in any ML model (incl. neural nets) **as long as it provides similar min/max error guarantees**.
+- The guarantee only holds over **stored** keys, not all possible keys. New data → B-Trees rebalance; models **retrain**.
+- **Crucially, the strong error bounds aren't even needed.** Data is sorted anyway, so any error is corrected by a **local search** around the prediction (e.g. exponential search) — which even allows **non-monotonic models**.
+- Simplifying assumptions for the paper: in-memory, dense, sorted array. Disk-resident / fine-grained paging / insert-heavy → more research needed.
 
-- Open challenges remain such as how to handle write heavy workloads
+> **Aside — what about skip lists?** Skip lists are a natural fit to ask about, since they're another ordered structure that "jumps roughly to the right region." There *is* work here (e.g. **FineStore-SL**, 2026) that swaps a skip list in as the backbone, with a learned model on top. The appeal: skip lists are **efficient for concurrent updates**, which is exactly the weakness of array-based learned indexes. So the model does the cheap "jump to the region" work while the skip list handles mutation/concurrency. It's a niche branch though — the mainstream successors (ALEX, PGM) went the updatable array/tree route instead.
 
-Range Index
+### 2.1 What Model Complexity Can We Afford?
 
-- Consider a B-Tree index in an anlytics in-memory data (readonly) over the sorted primary key column. In this case, the BTree provides a mapping from a look up key to a position inside the sorted array of records with the guarantee that the key of the record at that position is the first key equal or higher than th elookup key
+- A B-Tree with page size 100 over 100M records has a **precision gain of 1/100 per node**, traversing log₁₀₀(N) nodes (100M → 1M → 10k → …).
+- Traversing one B-Tree page via binary search ≈ **50 cycles**, and is **hard to parallelize**.
+- A modern CPU does **8–16 SIMD ops/cycle** → a model wins as long as its precision gain beats 1/100 per **~400 arithmetic ops** (50 × 8).
+- That calc assumes pages are cached; a single **cache miss = 50–100 extra cycles**, allowing even more complex models.
+- **ML accelerators change the game** — more complex models in the same time, offloading the CPU.
+  - *(Paper's example)* NVIDIA Tesla V100: 120 TFLOPs (~60k ops/cycle). If the index fits in GPU memory, ~1M neural-net ops in just 30 cycles.
 
-- My question: what about skip lists? (insert what claude gave me here for my question)
+### 2.2 Range Index Models *are* CDF Models
 
-- Here we only assume fixed length records and logical paging over a continuous memory region, ie, single array, not physical pages which are located in different memory regions
+- **Key observation:** a model predicting position in a sorted array is approximating the **cumulative distribution function (CDF)**:
 
-- Thus the BTRee is a model, or in ML temrinology, a regression tree: it maps a key to a position with a min and max error (min error 0, max error page size), with a guarantee that the key can be found in that region if it exists. We can replace the index with other types of ML models, including neural nets, as long as they are also able to provide similar storng guarantees about the min and max error
+  **p = F(Key) × N** — where `p` = position estimate, `F(Key)` = estimated CDF = P(X ≤ Key), and `N` = total keys.
 
-- The BTree only provides the strong min and max error guarantee over the stored keys, not possible keys. For new data, b trees need to be rebalanced or in machine learning terms: retrained, to still be able to provide the same error guarantees.
+- Implications:
+  1. Indexing literally **requires learning a data distribution** (a B-Tree "learns" it as a regression tree; linear regression learns it by minimizing squared error).
+  2. Distribution estimation is well-studied → learned indexes inherit decades of research.
+  3. The CDF idea also optimizes **other** index types and algorithms (foreshadowing).
+  4. Long history on how closely theoretical CDFs approximate empirical ones → a foothold for theory.
 
-- Second, and most importantly, the strong error bounds are not even needed. The data has to be sorted anyway to support range requests, so any erorr is easily corrected by a local search around the prediction: eg exponential search. and thus even allows for non monotonic models
+### 2.3 A First, Naïve Learned Index
 
-- BTrees have a bounded cost for inserts and lookups and are particularly good at taking advantage of the cache
+- 200M web-server log records; secondary index over timestamps; 2-layer FC net, 32 neurons/layer, ReLU, in TensorFlow.
+- Result: ~1250 predictions/sec ≈ **80,000 ns** per model execution.
+  - vs **B-Tree traversal ≈ 300 ns**, **binary search ≈ 900 ns**. (Naïve approach loses badly.)
+- **Why it's slow:**
+  1. **TensorFlow overhead** — built for large models, big invocation cost (worse with Python front-end).
+  2. **B-Trees overfit cheaply** via simple if-statements. Models capture the general CDF shape efficiently but struggle with the **"last mile"** — narrowing from thousands → hundreds costs a single net a lot of space/CPU.
+  3. **B-Trees are cache/op-efficient** (top nodes stay cached); standard nets need *all* weights for every prediction → many multiplications.
 
-- Also, BTrees can map keys to pages which are not continuously mapped to memory or disk
+---
 
-- For most of the discussion in this paper, we keep the simplified assumptions of this section: we only index an in memory dense array that is sorted by key.
+## 3. The RM-Index
 
-- While some of our techniques translate well to some scenarios (disk resident data with very large blocks, for example), for other scenarios (fine grained paging, insert heavy, etc.) more research is needed.
+Three pieces: the **Learning Index Framework (LIF)**, **Recursive Model Indexes (RMI)**, and **standard-error-based search**. Focus is simple FC neural nets for their simplicity/flexibility.
 
-2.1 What Model Complexity Can We Afford?
+### 3.1 The Learning Index Framework (LIF)
 
-- Consider a BTRee that indexes 100M records with a page size of 100. We can think of every b tree node as a way to partition the space, decreasing the error and narrowing the region to find the data
+- An **index synthesis system**: given a spec, it generates configs, optimizes, and tests them automatically.
+- **Two-phase trick:** trains with TensorFlow when needed, but **never uses TensorFlow at inference**. It extracts the trained weights and **code-generates lean, dependency-free C++** for the actual lookups.
+- Result: **80,000 ns → ~30 ns.** Stripping the general-purpose framework is what makes learned indexes fast enough to beat a B-Tree.
+- *Caveat:* LIF is a **research prototype**, not production-grade — extra counters, virtual calls, no hand-tuned SIMD. Fair for their comparisons (same tax on everyone) but real numbers could be even better.
 
-- We therefore say that the btree with a page size of 100 has a precision gain of 1/100 per node and we need to trabel a total of log_100N nodes. So the first node partitions the space from 100M to 1M, second from 1M to 10k and so on.
+### 3.2 The Recursive Model Index (RMI)
 
-- Traversing a single b tree page with binary search takes roughly 50 cycles and is notoriously hard to paralellize
+- **Core problem:** one model alone can't get accurate enough. Going 100M → 100 in one shot is hard; 100M → 10k is easy.
+- **Solution:** a **hierarchy of small "expert" models**. Each stage takes the key, makes a prediction, and that prediction **directly picks the next model** — until the final stage predicts the position.
+  - The handoff math: `⌊ M · f(x) / N ⌋` scales a model's output to an index into the next stage's models.
+- **Not a tree:** different parents can point to the same child, and models don't cover equal-sized chunks.
+- **Benefits:** (1) decouples model size from execution cost; (2) the overall CDF shape is easy to learn; (3) divide-and-conquer makes last-mile accuracy cheap; (4) **no search between stages** → can be expressed as one big matrix multiply (GPU/TPU-friendly).
 
-- In contrast, a modern PCU can do 8-16 SIMD operations per cycle, thus a model will be faster as long as it has a better precision gain than 1/100 per 50 * 8 = 400 arithmetic operations
+> Turns the impossibly-hard "find the exact position in 100M records" into a chain of easy narrow-it-down steps, with no searching in between — accurate *and* fast.
 
-- Note tihe calc still assumes that all B Tree pages are in the cache, a single cache miss costs 50-100 additional cycles and would thus allow for even more complex models.
+### 3.3 Hybrid Indexes
+
+- **You don't have to use the same model everywhere — mix and match per layer.**
+  - **Top layer:** small ReLU neural net (captures the complex overall shape).
+  - **Bottom layers:** thousands of cheap **linear regressions** (tiny, fast — all the easy last-mile needs).
+  - **Too-weird-to-learn chunks:** fall back to a plain **B-Tree**.
+- Training cascades the data downward: each stage trains, then routes its records into the right next-stage bucket.
+- At the bottom, any model whose **max error > threshold** is **automatically replaced with a B-Tree**.
+- **Worst-case guarantee:** if the data is pathological, *every* model becomes a B-Tree → it degrades gracefully to "no worse than a B-Tree."
+- Min/max error is stored **per bottom-stage model**, so each gets its own tailored search window.
 
- -Additionally, machine learning accelerattrs are entirely changing the game
-- They allow much more complex models in the same amount of time and offload compute from the cpu
+### 3.4 Search Strategies & Monotonicity
 
-- For exAMPLE (from the paper idk what is now in 2026), NvIDIA's latest Tesla V100 GPU is able to achieve 120 teraflops of low precision deep learning arithmetic operations (~60k ops per cycle)
+- The model gets you **close**; you still need a **last-mile search** to find the exact key.
+- Range indexes offer `upper_bound(key)` / `lower_bound(key)`.
+- Setup: normally plain **binary search wins** — fancy search rarely beats it (less overhead).
+- **Learned edge:** a B-Tree only narrows you to a *page*; a model predicts the *actual position*. Two strategies exploit this:
+  - **Model Biased Search:** binary search, but the first midpoint = the model's prediction.
+  - **Biased Quaternary Search:** probes **three** points at once (`pos − σ`, `pos`, `pos + σ`). Hardware **pre-fetches all three in parallel**, hiding memory latency when data isn't cached. Bets the answer is near `pos`.
+- Both use the prediction to **start in the right place**.
+- Search window = the stored **min/max error** per bottom model (run every key, record worst over/under-shoot).
+- **Monotonicity matters for *missing* keys.** A monotonic model guarantees "bigger key → bigger-or-equal position," so the search window around a missing key is trustworthy. Non-monotonic models can return the wrong neighbor. Fixes: **force monotonicity**, **widen the window at its edges**, or **exponential search** (no stored errors needed).
 
-- Assuming that the entire learned index fits into the gpus memory, in just 30 cycles we could execute 1 million neural net operations.
+### 3.5 Indexing Strings
 
-2.2 Range Index Models are CDF Models
-- An interesting observation: a model that predicts the position given a key inside a sorted array effectively approximates the umulative distribution function. We can model the CDF of the data to predict the position as: p = F(KEY) * N where p is the position estimate, F(Key) is the estimated cumulative distribution function for the data to estimate the likelihood to observe a key smaller or equal to the lookup key, P(X <= Key), and N is the total number of keys.
+- Everything so far assumed numeric keys — but a model can't do math on `"apple"`.
+- **Step 1 — Tokenization:** each character → its ASCII value → a *vector* of numbers.
+- **Step 2 — Fixed length:** pick max length `N`; truncate longer strings, zero-pad shorter ones.
+- **Step 3 — Same architecture, bigger input:** the same RMI net hierarchy, but input is a vector not a scalar.
+- **The catch:** work now scales with `N` (linear ≈ N mults; net ≈ h × N) → string indexing is **costlier**, wins over B-Trees **smaller**.
+- **Step 4 — Future work / scratching the surface:**
+  - Smarter tokenization (e.g. **wordpieces** from NLP — meaningful chunks instead of raw chars).
+  - **Suffix-trees + learned models.**
+  - Sequence-native architectures (**RNNs, CNNs**).
 
-- This implies that indexing literally requires learning a data distribution. A BTree "learns" the data distribution by building a regression tree. A linear regression model would learn the data distribution by minimizing the squared error of a linear funciton. Second, estimating the distribution for a dataset is a well known problem and learned indexes can benefit for decades of research. Third, learning the CDF plays also a key role in optimizing other types of index structures and potential algorithms as we will outline later in this paper. Fourth, there is a long history of research on how closely theoretical CDFs approximate empirical CDFs , that gives a foothold to theoretically understand the benefits of this approach.
+### 3.6 Training
 
-2.3 A First, Naiive Learned Index
+- Building a learned index is **fast**: cheap linear models train in a **single pass via a closed-form formula**; small nets converge in **a few passes**.
+- A **200M-record index trains in seconds** (more with auto-tuning); bigger nets take minutes per model.
+- The top model can **stop early** — it only needs rough accuracy.
+- *Note:* this is all **static, read-only build time**. Says nothing about **updating** the index on new data — the hard part.
+
+### 3.7 Results
 
-- Used 200M web-server log records with the goal of building a secondary index over the timestamps using TensorFlow. Trained a two layer fully connected neural network with 32 neurons per layer using ReLU activation functions. Afterwards, measured the lookup time for a randomly selected key with Tensorflow and Python as the frontend
-- Around 1250 predictions per second. IE ~80k ns to execute the model with tensorflow. As comparison, a BTRee trabersal over the same data takes ~300ns and binary search over the entire data roughly ~900 ns. 
+- **Datasets:** Weblogs (messy human timestamps — near worst case), Maps (smooth longitude — easy), Lognormal (synthetic, non-linear).
+- **Integers:** learned index beats even a **tuned production B-Tree** — **up to 3× faster, ~100× smaller** — and beats the specialized baselines (Lookup-Table, FAST, fixed B-Tree) on the combined size/speed front.
+  - FAST is competitive on speed but huge (1024 MB) due to power-of-2 alignment.
+  - Quantization (4/8-bit params) could shrink learned indexes even further.
+- **Strings:** wins shrink — model execution + string comparisons are both pricier. This is exactly where **hybrid models** and **smarter search** (quaternary 658 ns vs binary 1102 ns for the same net) earn their keep.
 
-Naiive approach is limited in a few ways:
-1. Tensorflow was designed to efficiently run larger models, not small models, and thus has significaiton invocation overhead, especially with Pyhton as front end
-2. B Trees, or decision trees in general are really good in overfitting the data with a few operations as the recursively divide the space using simple if statments. In contrast, other models can be significantly more efficient to approximate the general shape of a CDF, but have probems being accurate at the individual data instanc e level. Thus, models like neural nets, poly reg, etc. might be more CPU and space efficent to narrow down the position for an item from the entire dataset toa region of thousands, but a single neural  net usually requires significantly more space and CPU time for the last mile, to reduce the rror further down from thousands to hundreds. (maybe interesting research here if none already)
+> **Pattern:** learned indexes win biggest when the data is **learnable** and comparisons are **cheap**; the gap narrows when either gets harder. A consistent, sensible trend — not a magic bullet.
 
-- BTrees are extremely cache and operation efficient as they keep the top nodes always in cache and access other pages if needed. In contrast. standard neural nets requires all weights to compute a prediction, which has a high cost in the number of multiplications
+---
 
-3 The RM Index
-- Learning Index Framework (LIF)
-- Recursive Model indexes (RMI)
-- Standard error based search strategies
-- Primarily focus on simple, fully connected neural nets because of their simplicity and flexibility, but believe other types of modesl may provide additional benefits (maybe research here)
+## 4. Point Index (Hash-Model Index)
 
-3.1 The Learning Index Framework
+- Switching from ranges to **point lookups**: B-Trees find ranges; a hash-map answers *"is key X here, and where?"*
+- **Core problem: conflicts (collisions).** Even a *perfectly random* hash with #slots = #records gives **~33% conflicts** (~33M of 100M) — the **birthday paradox**. Every conflict = extra work (e.g. linked-list chaining → cache misses).
+- **Insight:** conflicts come from **uneven spreading**. A model that knows the distribution spreads keys *more evenly* than randomness:
 
-- Can be regarded as an index synthesis sytem; given an index specificaiton, LIF generates different index configs, optimizes them, and tests them automatically
+  **h(K) = F(K) × M** — the **same learned CDF**, scaled to table size `M`. Perfect CDF → zero conflicts.
 
-- LIF trains models with TensorFlow when needed, but compiles each finished model down into lean, dependency-free C++ for the actual lookups, which is what makes learned indexes fast enough to beat a B-Tree. 80kns -> 30ns. (Research angle: this is a research prototype, not production grade because it's built to quickly try out lots of different configurations, it carries some extra baggae of its own, no hand tuned SIMD.)
+- **Caveats:**
+  - Only helps if data is **non-uniform** (uniform data → a random hash is already as good).
+  - Payoff is **architecture-dependent** — learned hashing is orthogonal, plugs into any hash-map type; worth it only if conflicts are expensive in your setup.
 
-3.2 The Recursive Model index
+### 4.2 Results
 
-- The core idea is solving the problem: one model alone can't get acurate enoguh
+| Dataset | Random hash | Learned | Reduction |
+|---|---|---|---|
+| Map | 35.3% | 7.9% | **77.5%** |
+| Web | 35.3% | 24.7% | 30.0% |
+| Lognormal | 35.4% | 25.9% | 26.7% |
 
-- RMI is a heierachy of small "expert" models where each one's prediction directly selects the next expert, turning the impossibly hard "find the exact position in 100M records" problem into a chain of easy narrow-it-down steps with nos searching in between which is what makes it accurate and fast
+- **Map wins biggest** (model learns its smooth CDF accurately); messier data → smaller wins. Same "learnable = better" theme.
+- **Large payloads / separate chaining:** big win (up to **80% less wasted storage**, +13 ns — fewer conflicts also means fewer cache misses).
+- **Tiny payloads:** not worth it — Cuckoo hashing still wins.
+- **Distributed settings:** where it shines. In NAM-DB, a conflict = an extra **RDMA round-trip (microseconds)**, so model cost (nanoseconds) is negligible and any conflict reduction is a big win.
 
-3.3 Hybrid Indexes
+> The same CDF model, repurposed: range = predict position, point = spread keys to avoid conflicts.
 
-- You dont have to use the same kind of model everywhere in the hierarchy, mix and match and pick the right tool for each layer.
+---
 
-- Top layer needs to capture big, complex, overall shape of the data, so a small neural net (ReLU) is a good fit
-- Bottom layers each handle a tiny, simple slice so you don tneed anything facny. Use thousands of cheap linear regressions, they're tiny in memory and fast to run
-- If some chunk of data is too weird to learn, fall back to a BTree
+## 5. Existence Index (Bloom Filters)
 
-- Hybrid indexes bound the worst case to a BTree's performance. Because of the automatic fallback, if the data is so pathological that nothing learns it, every single model gets swapped for a btree
+- Bloom filters are space-efficient but **memory-hungry at scale**: 1B records ≈ **1.76 GB**; at 0.01% FPR ≈ **2.23 GB**.
+- **Bloom filter recap:** bit array + k hash functions. Insert = set k bits to 1. Check = if any of the k bits is 0 → **definitely not present**; all 1 → **probably present**.
+  - **No false negatives, possible false positives.** "No" is certain, "yes" is a maybe.
+- **Insight:** a normal filter treats keys as random — learns nothing about *what makes a key a key*. But if structure separates keys from non-keys, a model can **learn the boundary** and shrink the filter. (Extreme case: keys = integers 0..n → just check `0 ≤ x < n`.)
+- **What "good" means here flips vs. point indexes:** a point hash wants **few collisions among keys**; a Bloom function wants **many collisions among keys, many among non-keys, but few *between* the two** (a separation problem).
 
-- Hybrid indexes let each layer use th ebest model type for its job
+### 5.1.1 Approach 1 — Bloom Filter as Classification
 
-3.4 Search Strategies and Monotonicity
+- Train a model `f(x)` outputting **P(x is a key)**, on **both keys and known non-keys** (hence you need a non-key set). For strings → RNN/CNN, sigmoid output, log loss.
+- Pick a threshold τ: `f(x) ≥ τ` → "key."
+- **The danger:** the model has false positives (fine) *and* **false negatives (forbidden)**.
+- **The fix — overflow Bloom filter:** collect all real keys the model wrongly rejects (`f(x) < τ`) into a small traditional Bloom filter. Lookup:
+  1. `f(x) ≥ τ` → key exists.
+  2. Else → **don't trust the model**, check the overflow filter.
+- This is the **model + auxiliary structure** decomposition again. The overflow filter only holds the model's *misses*, so it's small (its size scales with the FNR).
 
-- The model gets you close, and now you have to actually find the exact key (this is the "last mile" search)
+### 5.1.2 Approach 2 — Model as a Hash Function
 
-- A range index offers upper_bound(key) and lower_bound(key). 
+- Use the model's output as a Bloom hash: **d = ⌊f(x) × m⌋**. Since it's trained to separate keys from non-keys, it maps most keys to the high end of the bit array, non-keys to the low end.
 
-- The Setup: normally, plain search wins, a known result in this field is that for finding a key in a sorted array, fancy search algorithms usually arent worth it - plain binary search beats them because of less overhead
+### 5.2 Results — Phishing URLs
 
-- Learned indexes have an edge, a BTree only tells you which page the key is in, theny ou search the hwole page. A learned model predicts the actual postiion, a specific spot, not just a neighborhood
+- 1.7M blacklisted URLs; non-keys = random + whitelisted look-alikes; small char-level **GRU**.
 
-Model biased Search: just binary search, but it starts at where the model predicted the position instead
+| Target FPR | Normal filter | Learned (model + overflow) | Saving |
+|---|---|---|---|
+| 1.0% | 2.04 MB | — (model itself only 0.0259 MB) | — |
+| 0.5% | — | 1.31 MB (FNR 55%) | **36%** |
+| 0.1% | 3.06 MB | 2.59 MB (FNR 76%) | 15% |
 
-- Biased Quaternary Search: A variant that checks three points at once instead of one. This is because modern hardware can pre fetch several memory locations simultaneously, if the data isn't already in cache, grabbing three spots in parallel hides memory latency better than grabbing one, waiting, then grabbing the next. The clever part is where they put the three points at, right around the prediction spread out by some sigma (a measure of typical error). They're betting the answer is near pos, so thye cluster their first three probes tightly around itbefore falling back to normal quaternary search if needed.
+- **Trade-off:** lower target FPR → higher FNR → bigger overflow filter → smaller savings.
+- **Covariate shift:** random-only non-keys → 60% saving; whitelisted-only (confusable) → 21%. The more confusable the non-keys, the harder the job.
+- **Big perk:** the model can use **richer features than the filter** (WHOIS, IP, page signals) → better accuracy, smaller index, *still* no false negatives.
 
-- Both strats use the model's prediction to start searching in the right place
+> Trains a model to predict "key vs non-key," then pairs it with a small overflow filter holding only its false negatives — restoring the sacred no-false-negatives guarantee while shrinking memory.
 
-- For all these, they need a bounded region to search in, they get it form th emin/max error stored per bottom-stage bodel - run every key through, record the worst over and under shoot, and that defines the ansewr is somehwere in here.
+---
 
-- missing keys need monotinicity
+## 6. Related Work
 
-3.5 Indexing Strings
+Recurring refrain across every category: *prior work optimizes structure or encoding, but none of it learns the data distribution.*
 
-- Everything so far assumed keys are numbers, but databases index strings too - names, urls, ids, and a model cant do math on strings.
+- **B-Trees & variants** (B+-trees, T-trees, red-black, cache-conscious CSB+-tree, SIMD/GPU FAST, tries/radix-trees): all **orthogonal** — they tune the *structure*, not the *distribution*. Could potentially *combine* with learned models (cf. hybrid indexes).
+- **Index compression** (prefix/suffix truncation, dictionary compression, hot/cold): learned indexes compress via a *radically different route* — the data distribution — possibly changing the complexity class (O(n) → O(1)). Complementary: dictionary compression is essentially **embedding** (string → unique int).
+- **Closest prior work — A-Trees, BF-Trees, B-Tree interpolation search:**
+  - *BF-Trees* — B+-tree with Bloom-filter leaves; don't approximate the CDF.
+  - *A-Trees* — piecewise-linear functions to cut leaf count (closest in spirit).
+  - *Interpolation search* — guesses position within a page.
+  - Learned indexes go further: **replace the entire structure**.
+- **Sparse indexes** (Hippo, Block Range Indexes, SMAs): store value-range info but ignore the distribution.
+- **Learning hash functions for ANN / LSH:** opposite goal — LSH wants to *group similar items together*; a point hash wants to *spread keys apart*. Doesn't transfer.
+- **Perfect hashing:** closest relative for hash-maps (also avoids conflicts), but uses no learning and its **size grows with the data** — a learned hash can be size-*independent*. Also doesn't help B-Trees or Bloom filters.
+- **Bloom filters:** builds on classic work but with a different optimization angle (enhanced classifier or model-as-hash).
+- **Succinct data structures** (wavelet trees, rank-select): optimize for **H₀ entropy** (bits to *encode*); learned indexes learn the *distribution* to predict positions → could compress **below H₀**, possibly at the cost of slower ops. Also: succinct structures are hand-crafted per use case; learned indexes **automate** via ML. May offer a theoretical framework for studying learned indexes.
+- **Modeling CDFs:** the foundation everything rests on; how best to model a CDF is **still open**.
+- **Mixture of Experts:** the ancestry of RMI. Key property — **decouples model size from computation cost** (huge ensemble, but only a few experts run per lookup).
 
-- Step 1: Tokenization
-- Step 2: Fixed length
-- Step 3: Same architecture, bigger input.
-- Step 4: We're just scratching the surface (future work and possible research angle)
-    - Smarter tokenization - instead of one numbr per character, borrow techniques from natural lagnaueg processing like wordpieces, which break strings into meaningful chunks 
-    - Suffix trees + learned models
-    - Fancier architecutres - RNNs and CNNs which are purpose built for sequences like text and might model strings more effectively
+> Structurally, this section re-proves the thesis by elimination: since nothing existing uses the data distribution, "indexes as learned CDF models" really is the new idea.
 
-- Short version: to index strings you turn each one into a fixed length vector of character values (ASCII numbers, truncated or zero padded to length N), then feed that into the same RMI neural net hierarchy sa before. The catch is that work now scales with string length N which is why stirng indexing is costlier and wins over B-Trees are smaller - and they flag smarter tokenizaiton (like wordpieces) and sequence models as the obvious next step
+---
 
-3.6 Trainig
+## 7. Conclusion & Future Work
 
-- Building a learned index is fast. The cheap linear models train in a single pass via  a direct formula, and the small neural nets converge in just a handful of passes. A 200M record index trains in seconds, helped by the fact that the top model can stop early since it only needs rough accuracy.
+- **Thesis restated:** learned indexes help by **exploiting the data distribution**.
+- **Other ML models:** they only tested linear models + small nets — lots of other model types and combinations to explore.
+- **Multi-dimensional indexes** *(called the most exciting direction)*: real queries filter on many attributes at once, which is genuinely hard traditionally. NNs excel at high-dimensional relationships → a model predicting position from *any combination of attributes* could be huge. *(This became real — Flood, Tsunami.)*
+- **Beyond indexing — learned algorithms:** the CDF trick generalizes to **sorting and joins**. Sorting idea: run records through the CDF to drop each near its final spot → "nearly sorted" → cheap cleanup (insertion sort). *(This became "Learned Sort.")*
+- **GPU/TPUs:** make learned indexes cheaper, and they'll *fit* (great compression). The honest catch: **invocation latency (2–3 µs)** dwarfs a nanosecond lookup. Rebuttal: improving CPU–accelerator integration + **batching** amortizes it away.
+- **Summary:** learned models can beat state-of-the-art indexes — a fruitful research direction.
 
-- This addresses static, read only build time. It says nothing about updating the index when new data arrives - which is hard
+> The lasting contribution isn't a benchmark number — it's the **reframing**: "an index is a model that predicts a position." That single idea spawned years of follow-up work (multi-dimensional indexes, learned sort, updatable variants).
 
-3.7 Results
+---
 
-- On integers, learned indexes beat even a tuned production B-Tree. Up to 3x faster and ~100x smaller, and beat the other specialized baselines on the combined size/speed front. On strings, the wins shrinkm because model execuiton and string comparisons are both pricier, which is exactly where hybrid models and msarter search strategies start to earn their keep
+## 8. Research Angles & Opportunities
 
-- Learned indexes win biggest when the data is learnable and comparisons are cheap, and the gap narrows when either of those gets harder - which is consistent, sinsible pattern rather than a magic bullet claim
+*Combining the paper's stated future work with the threads I found interesting while reading.*
 
-4 Point index and the Hash model Index
+### Stated by the paper
+- **Multi-dimensional learned indexes** — predict position filtered by *any* combination of attributes. The flagged "most exciting" direction; plays directly to NN strengths. *(Partly realized: Flood, Tsunami.)*
+- **Learned algorithms beyond indexing** — CDF-accelerated **sorting** and **joins**. *(Realized: Learned Sort.)*
+- **Other ML model types** — beyond linear + small nets; new architectures and hybrid combinations with classical structures.
+- **Write-heavy / update handling** — the biggest open gap. The whole paper is static & read-only; nothing addresses inserts/updates. *(This is the gap that ALEX and the PGM-index were built to fill — worth reading next.)*
+- **Disk-resident & fine-grained paging** — their techniques translate to large-block disk data, but fine-grained paging / insert-heavy needs more work.
+- **GPU/TPU deployment** — how to actually run learned indexes on accelerators given invocation latency; batching strategies.
 
-- Now switching from range indexes to point indexes
-
-- BTrees find ranges, a hash map answers: is key x here and where?
-
-- Core problem with hash maps: Conflicts.
-
-- Even with perfectly random hash function and a table with exactly as many slots as records, (100M slots, 100M keys) you still get ~33% conflicts, about 33M slots collide.
-
-- Every conflict forces the hash map to do extra work
-
-- The key insight: What causes conflicts? The hashing function spreading keys unevenly. A learned model that knows the data distribution can spread them more evenly than blind randomness, specifically h(K) = F(K) * M where F(K) is the learned CDF (same CDF model from the range index sections) and M is the table size. 
-
-- Important caveats:
-    - only helps if the data is non uniform
-- the payoff depends on the hash map architecture. learned hashing is orthogonal - it plugs into any hash map type, but whether the model's execution cost is worth it depends on how expensive conflicts are in your setup.
-
-Result
-
-Map Data: 35.3% -> 7.9% conflicts
-Web data: 35.3% -> 24.7% reduction
-Lognormal: 35.4% -> 25.9%
-
-- Pattern: Map data gets the biggest win because the model learns its CDF accurately, the messier the datasets get smaller smaller
-
-- Larger payloads / separate chaining: big win.
-- Tiny payloads: not worth it
-- Distributed settings: This is where it shines. In something like NAM DB a conflict means an extra network round trip costing microseconds (orders of magnitutde more than nanoseconds)
-
-- In all: the same CDF model that predicted positions can be repurposed as a hash function — F(key) × M — that spreads keys evenly and cuts conflicts by up to 77%. Whether that's worth the ~25-40ns model cost depends on how expensive your conflicts are: not worth it for tiny in-memory payloads (Cuckoo wins), clearly worth it for large payloads, and a potentially massive win in distributed systems where each conflict costs a network round-trip.
-
-Everything reduces to learning the CDF. Range index = CDF predicts position. Point index = CDF spreads key to avoid conflicts.
-
-5 Existence Index (Bloom Filters)
-
-- Bloom filters are space efficient but still hungry at scale, 1 billion records ~1.76 GB and pushing the FPR downt o 0.01% needs ~2.23 GB. That's a lot of RAM needed
-
-- The insight: A traditional Bloom filter treats keys as random — it learns nothing about what makes a key a key. But often there is structure separating keys from non-keys. Their extreme example: if your keys are exactly the integers 0 to n, you don't need a Bloom filter at all — just check 0 ≤ x < n, constant time, near-zero memory. Real data isn't that clean, but if a model can learn the boundary between keys and non-keys, it can shrink the filter.
-
-- Point index hash wants few collision among keys, bloom filter wants lots of collisions among keys, lots among non keys, but few between the two
-
-Approach 1: Bloom Filter as a Classification Problem
-- train a model that outputs the probability that x is a key
-- you train it on both keys and known non keys, thats why you need a non key dataset. for strings (like urls) theyd use an RNN/CNN. output is probability via sigmoid; trained with log loss
-
-- now pick a threshold. if f(x) >= T, call it a key; otherwise not
-
-- but a model isnt perfect - itll have both false positives AND false negatives. false positives are fine, but false negatives are forbidden
-
-- the fix: the overflow bloom filter. take all the real keys that model wrongly rejects and build a small traditional bloom filter containing just those. now the full thing is:
-1. ask the model if f(x) >= T -> key exists
-2. else, don't trust it: check the overflow bloom filter as a backup
-
-- this is model + auxiliary structure decomposition
-
-- a bloom filter's size scales with how many keys it must hold. the overflow filter only holds the model's false negatives
-
-approach 2: model as a hash function. 
-
-- use the same models output as a hash function feeding a bloom filter (d = f(x) * m). because the model was trained to separate keys from non keys it naturally maps most keys to the high end of the bit array and non keys to the low end
-
-5.2 Results
-- 1.7M blacklisted phishing URLs. non keys are  amix of random and whitelisted URLs. They train a small character level RNN to tell phishing from non phising
-
-A normal Bloom filter at 1% FPR: 2.04MB. The GRU model: just 0.0259MB — tiny.
-At 0.5% FPR, the model has a 55% false-negative rate, so the overflow filter must hold 55% of keys → total 1.31MB, a 36% reduction.
-At a stricter 0.1% FPR: FNR rises to 76%, total drops from 3.06MB to 2.59MB, a 15% reduction.
-
-- a learned Bloom filter trains a model to predict "key vs. non-key," then pairs it with a small overflow Bloom filter that holds only the model's false negatives — restoring the sacred no-false-negatives guarantee while shrinking total memory (36% on phishing URLs at 0.5% FPR). The savings depend on model accuracy and shrink as you demand lower FPRs, but the model can draw on richer features than a plain filter ever could.
-
-
-
-
-
-
-
-
-
-
-
-
+### My own threads from the notes
+- **The "last-mile" problem** — the recurring weak spot: models nail the general CDF shape but struggle to pin down individual positions (thousands → hundreds). Is there a better model class / architecture purpose-built for the last mile? (RMI's bottom-stage linear models are the current answer; could be improved.)
+- **Better string tokenization** — replace one-number-per-character with NLP-style **wordpieces** (meaningful chunks). Could shrink models and cut the per-string compute cost that currently makes string indexing weak.
+- **Suffix-trees + learned models** — an unexplored combination for string keys.
+- **Sequence-native architectures for strings** — RNNs/CNNs built for sequences may model string keys far better than feed-forward nets.
+- **Production-grade LIF** — the framework is a research prototype (extra counters, virtual calls, no hand-tuned SIMD). A clean, SIMD-optimized implementation could push the reported numbers further.
+- **Skip-list-backed learned indexes** — pairing a learned model with a skip list to get concurrency/update support that array-based learned indexes lack. *(Exists but niche — FineStore-SL; could be pushed further vs. the mainstream ALEX/PGM line.)*
+- **Beating H₀ entropy** — the succinct-data-structures connection hints learned indexes might compress *below* the entropy bound by exploiting distributional structure. Theoretically interesting and largely open.
+- **Richer features for learned Bloom filters** — since the model needn't share features with the filter, what's the ceiling on filter shrinkage if you feed in auxiliary signals (WHOIS, IP, etc.)? And how to handle **covariate shift** in query distributions principledly (importance weighting, adversarial training).
