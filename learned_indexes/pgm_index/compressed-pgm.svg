@@ -1,0 +1,153 @@
+<svg viewBox="0 0 1500 960" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif">
+<rect x="0" y="0" width="1500" height="960" fill="#ffffff"/>
+<text x="750" y="40" text-anchor="middle" font-size="25" font-weight="700" fill="#20242e">Compressing the segments: many slopes collapse into a few</text>
+<text x="750" y="65" text-anchor="middle" font-size="14" fill="#6b7280">Each segment accepts a whole INTERVAL of valid slopes (a §2 byproduct). Overlapping intervals can share one slope — so store t ≪ m distinct slopes.</text>
+<text x="40" y="102" font-size="15" font-weight="700" fill="#20242e">① Slopes — greedy "interval stabbing" on the slope axis</text>
+<text x="40" y="122" font-size="12.5" fill="#3a3f4b">Sort the feasible slope intervals by left endpoint, then sweep: keep shrinking the running intersection (l,r) until an interval starts past r → that closes a group.</text>
+<rect x="415.6" y="142.0" width="137.8" height="94.0" fill="#2f6f8f" opacity="0.12"/>
+<line x1="484.4" y1="142.0" x2="484.4" y2="236.0" stroke="#2f6f8f" stroke-width="2.2"/>
+<circle cx="484.4" cy="142.0" r="4.5" fill="#2f6f8f"/>
+<text x="484.4" y="136.0" text-anchor="middle" font-size="11" font-weight="700" fill="#2f6f8f">5.0</text>
+<rect x="656.7" y="238.0" width="103.3" height="62.0" fill="#b06a14" opacity="0.12"/>
+<line x1="708.3" y1="238.0" x2="708.3" y2="300.0" stroke="#b06a14" stroke-width="2.2"/>
+<circle cx="708.3" cy="238.0" r="4.5" fill="#b06a14"/>
+<text x="708.3" y="232.0" text-anchor="middle" font-size="11" font-weight="700" fill="#b06a14">8.25</text>
+<rect x="828.9" y="302.0" width="137.8" height="30.0" fill="#7a4fa3" opacity="0.12"/>
+<line x1="897.8" y1="302.0" x2="897.8" y2="332.0" stroke="#7a4fa3" stroke-width="2.2"/>
+<circle cx="897.8" cy="302.0" r="4.5" fill="#7a4fa3"/>
+<text x="897.8" y="296.0" text-anchor="middle" font-size="11" font-weight="700" fill="#7a4fa3">11.0</text>
+<rect x="1104.4" y="334.0" width="68.9" height="62.0" fill="#2c7d52" opacity="0.12"/>
+<line x1="1138.9" y1="334.0" x2="1138.9" y2="396.0" stroke="#2c7d52" stroke-width="2.2"/>
+<circle cx="1138.9" cy="334.0" r="4.5" fill="#2c7d52"/>
+<text x="1138.9" y="328.0" text-anchor="middle" font-size="11" font-weight="700" fill="#2c7d52">14.5</text>
+<rect x="277.8" y="146.0" width="344.4" height="22" rx="5" fill="#2f6f8f" opacity="0.55" stroke="#2f6f8f"/>
+<text x="267.8" y="162.0" text-anchor="end" font-size="11.5" font-family="ui-monospace,monospace" fill="#3a3f4b">s0</text>
+<text x="630.2" y="162.0" font-size="10.5" font-family="ui-monospace,monospace" fill="#8b919d">(2,7)</text>
+<rect x="346.7" y="178.0" width="206.7" height="22" rx="5" fill="#2f6f8f" opacity="0.55" stroke="#2f6f8f"/>
+<text x="336.7" y="194.0" text-anchor="end" font-size="11.5" font-family="ui-monospace,monospace" fill="#3a3f4b">s1</text>
+<text x="561.3" y="194.0" font-size="10.5" font-family="ui-monospace,monospace" fill="#8b919d">(3,6)</text>
+<rect x="415.6" y="210.0" width="275.6" height="22" rx="5" fill="#2f6f8f" opacity="0.55" stroke="#2f6f8f"/>
+<text x="405.6" y="226.0" text-anchor="end" font-size="11.5" font-family="ui-monospace,monospace" fill="#3a3f4b">s2</text>
+<text x="699.1" y="226.0" font-size="10.5" font-family="ui-monospace,monospace" fill="#8b919d">(4,8)</text>
+<rect x="622.2" y="242.0" width="137.8" height="22" rx="5" fill="#b06a14" opacity="0.55" stroke="#b06a14"/>
+<text x="612.2" y="258.0" text-anchor="end" font-size="11.5" font-family="ui-monospace,monospace" fill="#3a3f4b">s3</text>
+<text x="768.0" y="258.0" font-size="10.5" font-family="ui-monospace,monospace" fill="#8b919d">(7,9)</text>
+<rect x="656.7" y="274.0" width="241.1" height="22" rx="5" fill="#b06a14" opacity="0.55" stroke="#b06a14"/>
+<text x="646.7" y="290.0" text-anchor="end" font-size="11.5" font-family="ui-monospace,monospace" fill="#3a3f4b">s4</text>
+<text x="905.8" y="290.0" font-size="10.5" font-family="ui-monospace,monospace" fill="#8b919d">(7.5,11)</text>
+<rect x="828.9" y="306.0" width="137.8" height="22" rx="5" fill="#7a4fa3" opacity="0.55" stroke="#7a4fa3"/>
+<text x="818.9" y="322.0" text-anchor="end" font-size="11.5" font-family="ui-monospace,monospace" fill="#3a3f4b">s5</text>
+<text x="974.7" y="322.0" font-size="10.5" font-family="ui-monospace,monospace" fill="#8b919d">(10,12)</text>
+<rect x="1035.6" y="338.0" width="206.7" height="22" rx="5" fill="#2c7d52" opacity="0.55" stroke="#2c7d52"/>
+<text x="1025.6" y="354.0" text-anchor="end" font-size="11.5" font-family="ui-monospace,monospace" fill="#3a3f4b">s6</text>
+<text x="1250.2" y="354.0" font-size="10.5" font-family="ui-monospace,monospace" fill="#8b919d">(13,16)</text>
+<rect x="1104.4" y="370.0" width="68.9" height="22" rx="5" fill="#2c7d52" opacity="0.55" stroke="#2c7d52"/>
+<text x="1094.4" y="386.0" text-anchor="end" font-size="11.5" font-family="ui-monospace,monospace" fill="#3a3f4b">s7</text>
+<text x="1181.3" y="386.0" font-size="10.5" font-family="ui-monospace,monospace" fill="#8b919d">(14,15)</text>
+<text x="800" y="258" font-size="10.5" fill="#cf4436">s3 starts at 7 &gt; r=6 → new group</text>
+<text x="997" y="322" font-size="10.5" fill="#cf4436">s5 starts at 10 &gt; r=9 → new group</text>
+<text x="1257" y="354" font-size="10.5" fill="#cf4436">s6 starts at 13 &gt; r=12 → new group</text>
+<line x1="140" y1="408" x2="1390" y2="408" stroke="#9aa0ac" stroke-width="1.2"/>
+<line x1="140.0" y1="408" x2="140.0" y2="413" stroke="#9aa0ac" stroke-width="1"/>
+<text x="140.0" y="426" text-anchor="middle" font-size="10" fill="#8b919d">0</text>
+<line x1="277.8" y1="408" x2="277.8" y2="413" stroke="#9aa0ac" stroke-width="1"/>
+<text x="277.8" y="426" text-anchor="middle" font-size="10" fill="#8b919d">2</text>
+<line x1="415.6" y1="408" x2="415.6" y2="413" stroke="#9aa0ac" stroke-width="1"/>
+<text x="415.6" y="426" text-anchor="middle" font-size="10" fill="#8b919d">4</text>
+<line x1="553.3" y1="408" x2="553.3" y2="413" stroke="#9aa0ac" stroke-width="1"/>
+<text x="553.3" y="426" text-anchor="middle" font-size="10" fill="#8b919d">6</text>
+<line x1="691.1" y1="408" x2="691.1" y2="413" stroke="#9aa0ac" stroke-width="1"/>
+<text x="691.1" y="426" text-anchor="middle" font-size="10" fill="#8b919d">8</text>
+<line x1="828.9" y1="408" x2="828.9" y2="413" stroke="#9aa0ac" stroke-width="1"/>
+<text x="828.9" y="426" text-anchor="middle" font-size="10" fill="#8b919d">10</text>
+<line x1="966.7" y1="408" x2="966.7" y2="413" stroke="#9aa0ac" stroke-width="1"/>
+<text x="966.7" y="426" text-anchor="middle" font-size="10" fill="#8b919d">12</text>
+<line x1="1104.4" y1="408" x2="1104.4" y2="413" stroke="#9aa0ac" stroke-width="1"/>
+<text x="1104.4" y="426" text-anchor="middle" font-size="10" fill="#8b919d">14</text>
+<line x1="1242.2" y1="408" x2="1242.2" y2="413" stroke="#9aa0ac" stroke-width="1"/>
+<text x="1242.2" y="426" text-anchor="middle" font-size="10" fill="#8b919d">16</text>
+<line x1="1380.0" y1="408" x2="1380.0" y2="413" stroke="#9aa0ac" stroke-width="1"/>
+<text x="1380.0" y="426" text-anchor="middle" font-size="10" fill="#8b919d">18</text>
+<text x="1380" y="426" font-size="11" fill="#6b7280">slope →</text>
+<text x="40" y="452" font-size="12.5" fill="#3a3f4b">Result: <tspan font-weight="700">8 segments → 4 distinct slopes</tspan>. Each shaded band is a group's common intersection; the tick is the one slope that serves every segment in it.</text>
+<line x1="40" y1="540" x2="1460" y2="540" stroke="#e2e5ea"/>
+<text x="40" y="566" font-size="15" font-weight="700" fill="#20242e">② Encoding — a small table + tiny pointers</text>
+<text x="60" y="594" font-size="12.5" font-weight="700" fill="#3a3f4b">slope table T (t=4 floats, 64 bits each)</text>
+<rect x="60" y="604" width="78" height="34" rx="5" fill="#2f6f8f" opacity="0.18" stroke="#2f6f8f"/>
+<text x="99" y="619" text-anchor="middle" font-size="10" fill="#8b919d">T[0]</text>
+<text x="99" y="633" text-anchor="middle" font-size="12" font-family="ui-monospace,monospace" fill="#20242e">5.0</text>
+<rect x="146" y="604" width="78" height="34" rx="5" fill="#b06a14" opacity="0.18" stroke="#b06a14"/>
+<text x="185" y="619" text-anchor="middle" font-size="10" fill="#8b919d">T[1]</text>
+<text x="185" y="633" text-anchor="middle" font-size="12" font-family="ui-monospace,monospace" fill="#20242e">8.25</text>
+<rect x="232" y="604" width="78" height="34" rx="5" fill="#7a4fa3" opacity="0.18" stroke="#7a4fa3"/>
+<text x="271" y="619" text-anchor="middle" font-size="10" fill="#8b919d">T[2]</text>
+<text x="271" y="633" text-anchor="middle" font-size="12" font-family="ui-monospace,monospace" fill="#20242e">11.0</text>
+<rect x="318" y="604" width="78" height="34" rx="5" fill="#2c7d52" opacity="0.18" stroke="#2c7d52"/>
+<text x="357" y="619" text-anchor="middle" font-size="10" fill="#8b919d">T[3]</text>
+<text x="357" y="633" text-anchor="middle" font-size="12" font-family="ui-monospace,monospace" fill="#20242e">14.5</text>
+<text x="60" y="668" font-size="12.5" font-weight="700" fill="#3a3f4b">each of m=8 segments stores a ⌈log t⌉ = 2-bit pointer:</text>
+<rect x="60" y="678" width="78" height="32" rx="5" fill="#f5f6f9" stroke="#c8cdd6"/>
+<text x="99" y="692" text-anchor="middle" font-size="10" font-family="ui-monospace,monospace" fill="#3a3f4b">s0</text>
+<text x="99" y="706" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#2f6f8f" font-weight="700">→ 0</text>
+<rect x="146" y="678" width="78" height="32" rx="5" fill="#f5f6f9" stroke="#c8cdd6"/>
+<text x="185" y="692" text-anchor="middle" font-size="10" font-family="ui-monospace,monospace" fill="#3a3f4b">s1</text>
+<text x="185" y="706" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#2f6f8f" font-weight="700">→ 0</text>
+<rect x="232" y="678" width="78" height="32" rx="5" fill="#f5f6f9" stroke="#c8cdd6"/>
+<text x="271" y="692" text-anchor="middle" font-size="10" font-family="ui-monospace,monospace" fill="#3a3f4b">s2</text>
+<text x="271" y="706" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#2f6f8f" font-weight="700">→ 0</text>
+<rect x="318" y="678" width="78" height="32" rx="5" fill="#f5f6f9" stroke="#c8cdd6"/>
+<text x="357" y="692" text-anchor="middle" font-size="10" font-family="ui-monospace,monospace" fill="#3a3f4b">s3</text>
+<text x="357" y="706" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#b06a14" font-weight="700">→ 1</text>
+<rect x="404" y="678" width="78" height="32" rx="5" fill="#f5f6f9" stroke="#c8cdd6"/>
+<text x="443" y="692" text-anchor="middle" font-size="10" font-family="ui-monospace,monospace" fill="#3a3f4b">s4</text>
+<text x="443" y="706" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#b06a14" font-weight="700">→ 1</text>
+<rect x="490" y="678" width="78" height="32" rx="5" fill="#f5f6f9" stroke="#c8cdd6"/>
+<text x="529" y="692" text-anchor="middle" font-size="10" font-family="ui-monospace,monospace" fill="#3a3f4b">s5</text>
+<text x="529" y="706" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#7a4fa3" font-weight="700">→ 2</text>
+<rect x="576" y="678" width="78" height="32" rx="5" fill="#f5f6f9" stroke="#c8cdd6"/>
+<text x="615" y="692" text-anchor="middle" font-size="10" font-family="ui-monospace,monospace" fill="#3a3f4b">s6</text>
+<text x="615" y="706" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#2c7d52" font-weight="700">→ 3</text>
+<rect x="662" y="678" width="78" height="32" rx="5" fill="#f5f6f9" stroke="#c8cdd6"/>
+<text x="701" y="692" text-anchor="middle" font-size="10" font-family="ui-monospace,monospace" fill="#3a3f4b">s7</text>
+<text x="701" y="706" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#2c7d52" font-weight="700">→ 3</text>
+<rect x="60" y="726" width="640" height="58" rx="8" fill="#f7f8fa" stroke="#e2e5ea"/>
+<text x="78" y="750" font-size="12.5" fill="#3a3f4b">before: 8 floats × 64 = <tspan font-weight="700">512 bits</tspan>   ·   after: 4×64 + 8×2 = <tspan font-weight="700" fill="#2c7d52">272 bits</tspan></text>
+<text x="78" y="772" font-size="11.5" fill="#8b919d">Theorem 3: minimum t ≤ m distinct slopes, ε preserved, O(m log m) time, 64t + m⌈log t⌉ bits. The win grows as t ≪ m.</text>
+<text x="760" y="566" font-size="15" font-weight="700" fill="#20242e">③ Intercepts — already monotone, so nearly free</text>
+<text x="760" y="594" font-size="12.5" fill="#3a3f4b">intercept = position of each segment's first key → <tspan font-weight="700">increasing</tspan>, integer, and &lt; n:</text>
+<rect x="760" y="604" width="76" height="30" rx="5" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="798" y="624" text-anchor="middle" font-size="12" font-family="ui-monospace,monospace" fill="#20242e">0</text>
+<rect x="844" y="604" width="76" height="30" rx="5" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="882" y="624" text-anchor="middle" font-size="12" font-family="ui-monospace,monospace" fill="#20242e">5</text>
+<rect x="928" y="604" width="76" height="30" rx="5" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="966" y="624" text-anchor="middle" font-size="12" font-family="ui-monospace,monospace" fill="#20242e">12</text>
+<rect x="1012" y="604" width="76" height="30" rx="5" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1050" y="624" text-anchor="middle" font-size="12" font-family="ui-monospace,monospace" fill="#20242e">19</text>
+<rect x="1096" y="604" width="76" height="30" rx="5" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1134" y="624" text-anchor="middle" font-size="12" font-family="ui-monospace,monospace" fill="#20242e">28</text>
+<rect x="1180" y="604" width="76" height="30" rx="5" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1218" y="624" text-anchor="middle" font-size="12" font-family="ui-monospace,monospace" fill="#20242e">35</text>
+<rect x="1264" y="604" width="76" height="30" rx="5" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1302" y="624" text-anchor="middle" font-size="12" font-family="ui-monospace,monospace" fill="#20242e">47</text>
+<rect x="1348" y="604" width="76" height="30" rx="5" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1386" y="624" text-anchor="middle" font-size="12" font-family="ui-monospace,monospace" fill="#20242e">54</text>
+<text x="760" y="660" font-size="12.5" fill="#3a3f4b">store the small gaps instead → a succinct structure packs them tightly with O(1) access:</text>
+<text x="798" y="680" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#b06a14">+0</text>
+<text x="882" y="680" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#b06a14">+5</text>
+<text x="966" y="680" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#b06a14">+7</text>
+<text x="1050" y="680" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#b06a14">+7</text>
+<text x="1134" y="680" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#b06a14">+9</text>
+<text x="1218" y="680" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#b06a14">+7</text>
+<text x="1302" y="680" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#b06a14">+12</text>
+<text x="1386" y="680" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#b06a14">+7</text>
+<rect x="760" y="696" width="640" height="88" rx="8" fill="#f7f8fa" stroke="#e2e5ea"/>
+<text x="778" y="722" font-size="12.5" fill="#3a3f4b"><tspan font-weight="700">Prop 1:</tspan> intercepts fit in <tspan font-family="ui-monospace,monospace">m·log(n/m) + 1.92m + o(m)</tspan> bits,</text>
+<text x="778" y="744" font-size="12.5" fill="#3a3f4b">with O(1) random access.  (Truncating to an integer costs +1 on ε.)</text>
+<text x="778" y="768" font-size="11.5" font-style="italic" fill="#8b919d">Keys themselves are an orthogonal problem — handled by existing integer compressors.</text>
+<rect x="40" y="810" width="1420" height="126" rx="10" fill="#fff6e8" stroke="#e7d4ad"/>
+<text x="62" y="838" font-size="14" font-weight="700" fill="#b06a14">The trick: recycle slack the optimal algorithm already produced</text>
+<text x="62" y="864" font-size="12.5" fill="#3a3f4b"><tspan font-weight="700">Slopes</tspan> were never single values — §2's convex hull handed each segment an INTERVAL of valid slopes. Overlapping intervals share one slope (interval stabbing,</text>
+<text x="62" y="884" font-size="12.5" fill="#3a3f4b">the same greedy "extend the feasible region until it breaks" pattern as segmentation). <tspan font-weight="700">Intercepts</tspan> were already monotone integers &lt; n, so a succinct structure suffices.</text>
+<text x="62" y="908" font-size="12.5" fill="#3a3f4b">Both halves are lossless and keep the ε-guarantee: the index is functionally identical, just smaller. The cleverness is <tspan font-weight="700">noticing the slack</tspan>, not adding machinery.</text>
+<text x="62" y="928" font-size="12" font-style="italic" fill="#8b919d">This is a space optimization (a variant), not a new capability — the query/update algorithms are unchanged.</text>
+</svg>

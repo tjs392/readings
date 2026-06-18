@@ -1,0 +1,150 @@
+<svg viewBox="0 0 1500 1080" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif">
+<defs><marker id="bk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#cf4436"/></marker><marker id="gy" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9aa0ac"/></marker></defs>
+<rect x="0" y="0" width="1500" height="1080" fill="#ffffff"/>
+<text x="750" y="40" text-anchor="middle" font-size="25" font-weight="700" fill="#20242e">Where the "sets" live: the Dynamic PGM is several whole PGM-indexes side by side</text>
+<text x="750" y="65" text-anchor="middle" font-size="14" fill="#6b7280">Each run Sᵢ is its own §2 static PGM (its own segments + sorted array) — NOT a leaf or a level inside one big index.</text>
+<text x="40" y="104" font-size="15" font-weight="700" fill="#b06a14">① The runs — independent static PGM-indexes, newest/smallest on the left → oldest/largest on the right</text>
+<rect x="112" y="150" width="76" height="52" rx="8" fill="#fafbfc" stroke="#b9bfca" stroke-dasharray="4 3"/>
+<text x="150" y="142" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">S0 (1)</text>
+<text x="150" y="218" text-anchor="middle" font-size="10.5" fill="#8b919d">too small → binary search</text>
+<rect x="124" y="164" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="137" y="181" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">c</text>
+<rect x="292" y="150" width="76" height="52" rx="8" fill="#fafbfc" stroke="#b9bfca" stroke-dasharray="4 3"/>
+<text x="330" y="142" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">S1 (2)</text>
+<text x="330" y="218" text-anchor="middle" font-size="10.5" fill="#8b919d">too small → binary search</text>
+<rect x="304" y="164" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="317" y="181" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">b</text>
+<rect x="330" y="164" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="343" y="181" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">d</text>
+<rect x="556" y="150" width="128" height="82" rx="8" fill="#fafbfc" stroke="#b9bfca" stroke-dasharray="4 3"/>
+<text x="620" y="142" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">S2 (4)</text>
+<text x="620" y="248" text-anchor="middle" font-size="10.5" fill="#8b919d">has its own PGM</text>
+<rect x="597" y="162" width="46" height="22" rx="4" fill="#fbedd4" stroke="#b06a14"/>
+<text x="620" y="177" text-anchor="middle" font-size="9.5" fill="#b06a14">root seg</text>
+<line x1="620" y1="184" x2="620" y2="194" stroke="#d9ad6a" stroke-width="1"/>
+<rect x="568" y="194" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="581" y="211" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">e</text>
+<rect x="594" y="194" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="607" y="211" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">h</text>
+<rect x="620" y="194" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="633" y="211" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">m</text>
+<rect x="646" y="194" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="659" y="211" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">q</text>
+<rect x="964" y="150" width="232" height="112" rx="8" fill="#fafbfc" stroke="#b9bfca" stroke-dasharray="4 3"/>
+<text x="1080" y="142" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">S3 (8)</text>
+<text x="1080" y="278" text-anchor="middle" font-size="10.5" fill="#8b919d">its own recursive PGM</text>
+<rect x="1057" y="162" width="46" height="22" rx="4" fill="#fbedd4" stroke="#b06a14"/>
+<text x="1080" y="177" text-anchor="middle" font-size="9.5" fill="#b06a14">root seg</text>
+<rect x="1012" y="192" width="44" height="20" rx="4" fill="#fdf4e6" stroke="#d9ad6a"/>
+<text x="1034" y="206" text-anchor="middle" font-size="9" fill="#b06a14">seg</text>
+<rect x="1104" y="192" width="44" height="20" rx="4" fill="#fdf4e6" stroke="#d9ad6a"/>
+<text x="1126" y="206" text-anchor="middle" font-size="9" fill="#b06a14">seg</text>
+<line x1="1080" y1="184" x2="1034" y2="192" stroke="#d9ad6a" stroke-width="1"/>
+<line x1="1080" y1="184" x2="1126" y2="192" stroke="#d9ad6a" stroke-width="1"/>
+<line x1="1034" y1="212" x2="1018" y2="224" stroke="#d9ad6a" stroke-width="0.8"/>
+<line x1="1126" y1="212" x2="1142" y2="224" stroke="#d9ad6a" stroke-width="0.8"/>
+<rect x="976" y="224" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="989" y="241" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">a</text>
+<rect x="1002" y="224" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1015" y="241" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">f</text>
+<rect x="1028" y="224" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1041" y="241" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">g</text>
+<rect x="1054" y="224" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1067" y="241" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">k</text>
+<rect x="1080" y="224" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1093" y="241" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">n</text>
+<rect x="1106" y="224" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1119" y="241" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">r</text>
+<rect x="1132" y="224" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1145" y="241" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">t</text>
+<rect x="1158" y="224" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1171" y="241" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">z</text>
+<text x="40" y="300" font-size="12.5" fill="#3a3f4b">No tree links these runs. They are separate structures on a shelf. An <tspan font-weight="700">insert</tspan> moves keys between runs (next); a <tspan font-weight="700">query</tspan> must visit every run (figure 2).</text>
+<text x="40" y="320" font-size="12.5" fill="#3a3f4b">Run sizes are powers of two and each is full-or-empty; the full/empty pattern across runs is just the binary value of n (the number of live inserts).</text>
+<line x1="40" y1="344" x2="1460" y2="344" stroke="#e2e5ea"/>
+<text x="40" y="376" font-size="15" font-weight="700" fill="#2c6f50">② Insert — the new key carries up, merging full runs into the first empty one, which is rebuilt</text>
+<text x="60" y="404" font-size="12.5" font-weight="700" fill="#3a3f4b">before: S0=[a], S1=[b,d] both full, and a new key c arrives</text>
+<rect x="112" y="420" width="76" height="52" rx="8" fill="#fafbfc" stroke="#b9bfca" stroke-dasharray="4 3"/>
+<text x="150" y="412" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">S0</text>
+<rect x="124" y="434" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="137" y="451" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">a</text>
+<rect x="292" y="420" width="76" height="52" rx="8" fill="#fafbfc" stroke="#b9bfca" stroke-dasharray="4 3"/>
+<text x="330" y="412" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">S1</text>
+<rect x="304" y="434" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="317" y="451" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">b</text>
+<rect x="330" y="434" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="343" y="451" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">d</text>
+<rect x="450" y="432" width="92" height="30" rx="5" fill="#eaf5ef" stroke="#2c6f50" stroke-dasharray="3 2"/><text x="496" y="452" text-anchor="middle" font-size="11.5" font-family="ui-monospace,monospace" fill="#2c6f50">new key c</text>
+<line x1="560" y1="455" x2="640" y2="455" stroke="#cf4436" stroke-width="2.2" marker-end="url(#bk)"/>
+<text x="600" y="446" text-anchor="middle" font-size="10.5" fill="#cf4436">merge</text>
+<text x="600" y="470" text-anchor="middle" font-size="9.5" fill="#cf4436">sort + rebuild</text>
+<rect x="756" y="420" width="128" height="82" rx="8" fill="#fafbfc" stroke="#b9bfca" stroke-dasharray="4 3"/>
+<text x="820" y="412" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">S2 (rebuilt)</text>
+<text x="820" y="518" text-anchor="middle" font-size="10.5" fill="#8b919d">ONE fresh static PGM over the 4 sorted keys</text>
+<rect x="797" y="432" width="46" height="22" rx="4" fill="#fbedd4" stroke="#b06a14"/>
+<text x="820" y="447" text-anchor="middle" font-size="9.5" fill="#b06a14">root seg</text>
+<line x1="820" y1="454" x2="820" y2="464" stroke="#d9ad6a" stroke-width="1"/>
+<rect x="768" y="464" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="781" y="481" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">a</text>
+<rect x="794" y="464" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="807" y="481" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">b</text>
+<rect x="820" y="464" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="833" y="481" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">c</text>
+<rect x="846" y="464" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="859" y="481" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">d</text>
+<text x="980" y="455" font-size="12.5" fill="#8b919d">S0, S1 now empty</text>
+<text x="60" y="556" font-size="12.5" fill="#3a3f4b"><tspan font-weight="700">Merging</tspan> = concatenate the already-sorted runs into one sorted array, then build a single new static PGM over it. Because 1+1+2 = 4 = 2², it lands exactly in S2.</text>
+<text x="60" y="576" font-size="12.5" fill="#3a3f4b">Big merges are rare (run i rebuilds once every 2ⁱ inserts), so each key is rewritten ≤ log n times → <tspan font-weight="700">O(log n) amortised per insert</tspan>.</text>
+<line x1="40" y1="600" x2="1460" y2="600" stroke="#e2e5ea"/>
+<text x="40" y="632" font-size="15" font-weight="700" fill="#cf4436">③ Delete = insert a tombstone   ·   ④ garbage-collected for free when runs merge</text>
+<text x="60" y="660" font-size="12.5" font-weight="700" fill="#3a3f4b">delete(k): drop a tombstone ⌫k into the newest run (a disguised insert)</text>
+<rect x="122" y="676" width="76" height="52" rx="8" fill="#fafbfc" stroke="#b9bfca" stroke-dasharray="4 3"/>
+<text x="160" y="668" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">S0 (new)</text>
+<rect x="134" y="690" width="26" height="26" fill="#f6dada" stroke="#cf4436"/>
+<text x="147" y="707" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#cf4436">⌫k</text>
+<text x="300" y="712" font-size="12.5" fill="#3a3f4b">…meanwhile the real k still sits in an older run:</text>
+<rect x="669" y="676" width="102" height="82" rx="8" fill="#fafbfc" stroke="#b9bfca" stroke-dasharray="4 3"/>
+<text x="720" y="668" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">S3 (old)</text>
+<text x="720" y="774" text-anchor="middle" font-size="10.5" fill="#8b919d">still physically holds k</text>
+<rect x="697" y="688" width="46" height="22" rx="4" fill="#fbedd4" stroke="#b06a14"/>
+<text x="720" y="703" text-anchor="middle" font-size="9.5" fill="#b06a14">root seg</text>
+<line x1="720" y1="710" x2="720" y2="720" stroke="#d9ad6a" stroke-width="1"/>
+<rect x="681" y="720" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="694" y="737" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">a</text>
+<rect x="707" y="720" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="720" y="737" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">k</text>
+<rect x="733" y="720" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="746" y="737" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">z</text>
+<text x="60" y="800" font-size="12.5" font-weight="700" fill="#3a3f4b">later, when those two runs merge, the tombstone meets the key:</text>
+<rect x="122" y="820" width="76" height="52" rx="8" fill="#fafbfc" stroke="#b9bfca" stroke-dasharray="4 3"/>
+<text x="160" y="812" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">⌫k</text>
+<rect x="134" y="834" width="26" height="26" fill="#f6dada" stroke="#cf4436"/>
+<text x="147" y="851" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#cf4436">⌫k</text>
+<text x="250" y="858" font-size="14" fill="#cf4436">+</text>
+<rect x="309" y="820" width="102" height="52" rx="8" fill="#fafbfc" stroke="#b9bfca" stroke-dasharray="4 3"/>
+<text x="360" y="812" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">…k…</text>
+<rect x="321" y="834" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="334" y="851" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">a</text>
+<rect x="347" y="834" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="360" y="851" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">k</text>
+<rect x="373" y="834" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="386" y="851" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">z</text>
+<line x1="470" y1="858" x2="560" y2="858" stroke="#cf4436" stroke-width="2.2" marker-end="url(#bk)"/>
+<text x="515" y="848" text-anchor="middle" font-size="10.5" fill="#cf4436">merge cancels</text>
+<rect x="682" y="820" width="76" height="82" rx="8" fill="#fafbfc" stroke="#b9bfca" stroke-dasharray="4 3"/>
+<text x="720" y="812" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">merged run</text>
+<text x="720" y="918" text-anchor="middle" font-size="10.5" fill="#8b919d">k AND ⌫k dropped → physically gone</text>
+<rect x="697" y="832" width="46" height="22" rx="4" fill="#fbedd4" stroke="#b06a14"/>
+<text x="720" y="847" text-anchor="middle" font-size="9.5" fill="#b06a14">root seg</text>
+<line x1="720" y1="854" x2="720" y2="864" stroke="#d9ad6a" stroke-width="1"/>
+<rect x="694" y="864" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="707" y="881" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">a</text>
+<rect x="720" y="864" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="733" y="881" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">z</text>
+<text x="60" y="930" font-size="12.5" fill="#3a3f4b">Until that merge, ⌫k merely <tspan font-weight="700">shadows</tspan> k on reads (figure 2). The actual removal is a free side-effect of normal merging — no separate deletion logic.</text>
+<rect x="40" y="958" width="1420" height="104" rx="10" fill="#f7f8fa" stroke="#e2e5ea"/>
+<text x="62" y="986" font-size="14" font-weight="700" fill="#20242e">The one structural idea to hold onto</text>
+<text x="62" y="1012" font-size="12.5" fill="#3a3f4b">The dynamic PGM is a <tspan font-weight="700">collection of complete static PGM-indexes</tspan> of sizes 1, 2, 4, 8, … — a "shelf of indexes," not one index. Writes never edit a run in place;</text>
+<text x="62" y="1032" font-size="12.5" fill="#3a3f4b">they <tspan font-weight="700">rebuild</tspan> runs by merging (insert = carry; delete = tombstone; GC = merge side-effect). Each rebuilt run is a brand-new §2 PGM over its sorted keys.</text>
+<text x="62" y="1052" font-size="12" font-style="italic" fill="#8b919d">Because the data is spread across these runs, a read has to visit all of them — which is figure 2.</text>
+</svg>

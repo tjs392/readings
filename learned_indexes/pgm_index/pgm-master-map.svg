@@ -1,0 +1,153 @@
+<svg viewBox="0 0 1680 1240" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif">
+<defs><marker id="mk" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6b7280"/></marker></defs>
+<rect x="0" y="0" width="1680" height="1240" fill="#ffffff"/>
+<text x="840" y="40" text-anchor="middle" font-size="27" font-weight="700" fill="#20242e">The PGM-index, end to end: every algorithm, when it runs, and how the data flows</text>
+<text x="60" y="74" font-size="12" fill="#6b7280">Boxes = data / structures · arrows = algorithms (with cost &amp; theorem). Steps ①–⑩ tell you when each runs:</text>
+<rect x="210" y="84" width="14" height="13" rx="3" fill="#2c7d52" opacity="0.55" stroke="#2c7d52"/>
+<text x="230" y="95" font-size="11.5" fill="#3a3f4b">build once (§2)</text>
+<rect x="359.0" y="84" width="14" height="13" rx="3" fill="#b06a14" opacity="0.55" stroke="#b06a14"/>
+<text x="379.0" y="95" font-size="11.5" fill="#3a3f4b">the index = the atom</text>
+<rect x="543.0" y="84" width="14" height="13" rx="3" fill="#2f6f8f" opacity="0.55" stroke="#2f6f8f"/>
+<text x="563.0" y="95" font-size="11.5" fill="#3a3f4b">every read (§2)</text>
+<rect x="692.0" y="84" width="14" height="13" rx="3" fill="#3f51b5" opacity="0.55" stroke="#3f51b5"/>
+<text x="712.0" y="95" font-size="11.5" fill="#3a3f4b">optional compression (§4)</text>
+<rect x="911.0" y="84" width="14" height="13" rx="3" fill="#7a4fa3" opacity="0.55" stroke="#7a4fa3"/>
+<text x="931.0" y="95" font-size="11.5" fill="#3a3f4b">writes + dynamic read (§3)</text>
+<rect x="30" y="116" width="360" height="360" rx="12" fill="#e6f2ec" stroke="#2c7d52" stroke-width="1.4" opacity="0.5"/>
+<text x="48" y="140" font-size="14.5" font-weight="700" fill="#2c7d52">CONSTRUCTION — build once</text>
+<rect x="406" y="116" width="372" height="360" rx="12" fill="#fbedd4" stroke="#b06a14" stroke-width="1.4" opacity="0.5"/>
+<text x="424" y="140" font-size="14.5" font-weight="700" fill="#b06a14">STATIC PGM-INDEX (§2) — the atom</text>
+<rect x="794" y="116" width="856" height="360" rx="12" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.4" opacity="0.5"/>
+<text x="812" y="140" font-size="14.5" font-weight="700" fill="#2f6f8f">QUERY — every read</text>
+<rect x="70" y="150" width="300" height="32" rx="16" fill="#eef0f3" stroke="#c8cdd6" stroke-width="1.6"/>
+<text x="220" y="170" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">sorted keys  A   (n keys)</text>
+<rect x="50" y="250" width="320" height="46" rx="7" fill="#fff" stroke="#2c7d52" stroke-width="1.5"/>
+<text x="61" y="267" font-size="11.5" font-weight="700" fill="#20242e">PLA-model: segments</text>
+<text x="61" y="282" font-size="11.5" font-weight="400" fill="#20242e">(key, slope, intercept)</text>
+<rect x="70" y="348" width="280" height="38" rx="7" fill="#fff" stroke="#2c7d52" stroke-width="1.5"/>
+<text x="81" y="365" font-size="11.5" font-weight="400" fill="#20242e">stack of PLA-models = levels</text>
+<path d="M220,182 L220,248" stroke="#6b7280" stroke-width="1.8" fill="none" marker-end="url(#mk)"/>
+<text x="232" y="222" text-anchor="start" font-size="10.5" font-weight="400" fill="#2c7d52">① segment optimally — convex hull</text>
+<text x="232" y="236" text-anchor="start" font-size="10.5" font-weight="400" fill="#2c7d52">(Lemma 1), O(n) streaming</text>
+<path d="M210,296 L210,346" stroke="#6b7280" stroke-width="1.8" fill="none" marker-end="url(#mk)"/>
+<text x="222" y="326" text-anchor="start" font-size="10.5" font-weight="400" fill="#2c7d52">② recurse on each segment's first key</text>
+<text x="222" y="340" text-anchor="start" font-size="10.5" font-weight="400" fill="#2c7d52">— Build-PGM-index</text>
+<path d="M350,367 L406,300" stroke="#2c7d52" stroke-width="1.8" fill="none" marker-end="url(#mk)"/>
+<rect x="566" y="160" width="86" height="26" rx="5" fill="#fff" stroke="#b06a14"/>
+<text x="609" y="177" text-anchor="middle" font-size="11" font-weight="400" fill="#b06a14">root seg</text>
+<rect x="470" y="208" width="74" height="24" rx="5" fill="#fdf4e6" stroke="#b06a14"/>
+<text x="507" y="224" text-anchor="middle" font-size="10" font-weight="400" fill="#b06a14">seg</text>
+<rect x="640" y="208" width="74" height="24" rx="5" fill="#fdf4e6" stroke="#b06a14"/>
+<text x="677" y="224" text-anchor="middle" font-size="10" font-weight="400" fill="#b06a14">seg</text>
+<rect x="446" y="256" width="296" height="20" rx="3" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="594" y="270" text-anchor="middle" font-size="10.5" font-weight="400" fill="#6b7280">sorted array A</text>
+<path d="M609,186 L507,208" stroke="#b06a14" stroke-width="1" fill="none"/>
+<path d="M609,186 L677,208" stroke="#b06a14" stroke-width="1" fill="none"/>
+<path d="M507,232 L507,256" stroke="#b06a14" stroke-width="1" fill="none" stroke-dasharray="2 2"/>
+<path d="M677,232 L677,256" stroke="#b06a14" stroke-width="1" fill="none" stroke-dasharray="2 2"/>
+<rect x="425" y="300" width="330" height="162" rx="7" fill="#fffaf2" stroke="#b06a14" stroke-width="1.5"/>
+<text x="436" y="317" font-size="11" font-weight="400" fill="#20242e">Each node = ONE segment: 2 floats + 1 key.</text>
+<text x="436" y="332" font-size="11" font-weight="400" fill="#20242e">Navigation is COMPUTED (evaluate the line),</text>
+<text x="436" y="347" font-size="11" font-weight="400" fill="#20242e">not stored — no separators, no child pointers.</text>
+<text x="436" y="362" font-size="11" font-weight="400" fill="#20242e"></text>
+<text x="436" y="377" font-size="11" font-weight="400" fill="#20242e">Space Θ(m); query O(log m + log ε).</text>
+<text x="436" y="392" font-size="11" font-weight="400" fill="#20242e">Theorem 1: provably I/O-optimal — never</text>
+<text x="436" y="407" font-size="11" font-weight="400" fill="#20242e">asymptotically worse than a B+-tree.</text>
+<rect x="820" y="158" width="130" height="32" rx="16" fill="#eef0f3" stroke="#c8cdd6" stroke-width="1.6"/>
+<text x="885" y="178" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">query key k</text>
+<rect x="820" y="206" width="810" height="70" rx="7" fill="#fff" stroke="#2f6f8f" stroke-width="1.5"/>
+<text x="831" y="223" font-size="11.5" font-weight="700" fill="#20242e">③ lookup(k):  at each level, evaluate  fs(k) = slope·(k − key) + intercept  → binary-search the</text>
+<text x="831" y="238" font-size="11.5" font-weight="400" fill="#20242e">±ε window  → that picks the next segment → descend to the array.</text>
+<text x="831" y="253" font-size="11.5" font-weight="400" fill="#20242e">Theorem 1:  O(log m + log ε)   (descent costs log m, last-mile correction costs log ε).</text>
+<rect x="820" y="300" width="360" height="40" rx="7" fill="#fff" stroke="#2f6f8f" stroke-width="1.5"/>
+<text x="831" y="317" font-size="11.5" font-weight="400" fill="#20242e">→ member / predecessor / lookup result</text>
+<rect x="1200" y="300" width="430" height="40" rx="7" fill="#fff" stroke="#2f6f8f" stroke-width="1.5"/>
+<text x="1211" y="317" font-size="11.5" font-weight="700" fill="#20242e">④ range(lo, hi): do ③ for lo, then scan the K results  ( +O(K) )</text>
+<path d="M885,190 L885,204" stroke="#2f6f8f" stroke-width="1.8" fill="none" marker-end="url(#mk)"/>
+<path d="M778,250 L820,241" stroke="#b06a14" stroke-width="1.8" fill="none" marker-end="url(#mk)"/>
+<text x="786" y="234" text-anchor="start" font-size="9.5" font-weight="400" fill="#b06a14">the index</text>
+<path d="M900,276 L900,298" stroke="#2f6f8f" stroke-width="1.8" fill="none" marker-end="url(#mk)"/>
+<path d="M1180,320 L1198,320" stroke="#2f6f8f" stroke-width="1.8" fill="none" marker-end="url(#mk)"/>
+<rect x="406" y="500" width="1244" height="236" rx="12" fill="#e9ebf7" stroke="#3f51b5" stroke-width="1.4" opacity="0.5"/>
+<text x="424" y="524" font-size="14.5" font-weight="700" fill="#3f51b5">COMPRESSION (§4) — optional; the index stays QUERYABLE IN PLACE (no decompression)</text>
+<path d="M600,476 L600,556" stroke="#3f51b5" stroke-width="1.8" fill="none" stroke-dasharray="5 4" marker-end="url(#mk)"/>
+<text x="610" y="520" text-anchor="start" font-size="10.5" font-weight="400" fill="#3f51b5">compress the segments</text>
+<rect x="425" y="556" width="200" height="46" rx="7" fill="#fff" stroke="#3f51b5" stroke-width="1.5"/>
+<text x="436" y="573" font-size="11" font-weight="400" fill="#20242e">each segment's slope</text>
+<text x="436" y="588" font-size="11" font-weight="400" fill="#20242e">interval + intercept</text>
+<rect x="660" y="540" width="470" height="52" rx="7" fill="#fff" stroke="#3f51b5" stroke-width="1.5"/>
+<text x="671" y="557" font-size="11" font-weight="700" fill="#20242e">⑤ slope interval-stabbing (Theorem 3, O(m log m)) →</text>
+<text x="671" y="572" font-size="11" font-weight="400" fill="#20242e">table T of t ≪ m distinct floats; each segment keeps a ⌈log t⌉-bit pointer</text>
+<rect x="660" y="602" width="470" height="44" rx="7" fill="#fff" stroke="#3f51b5" stroke-width="1.5"/>
+<text x="671" y="619" font-size="11" font-weight="700" fill="#20242e">⑥ intercept succinct coding (Prop 1) →</text>
+<text x="671" y="634" font-size="11" font-weight="400" fill="#20242e">m·log(n/m) + 1.92m + o(m) bits, O(1) access</text>
+<rect x="1160" y="556" width="150" height="72" rx="7" fill="#e9ebf7" stroke="#3f51b5" stroke-width="1.5"/>
+<text x="1171" y="573" font-size="13" font-weight="700" fill="#20242e">COMPRESSED</text>
+<text x="1171" y="588" font-size="13" font-weight="400" fill="#20242e">PGM-INDEX</text>
+<rect x="1330" y="540" width="310" height="176" rx="7" fill="#fff" stroke="#3f51b5" stroke-width="1.5"/>
+<text x="1341" y="557" font-size="10.5" font-weight="400" fill="#20242e">Queried IN PLACE:</text>
+<text x="1341" y="572" font-size="10.5" font-weight="400" fill="#20242e">• slope = one O(1) lookup  T[pointer]</text>
+<text x="1341" y="587" font-size="10.5" font-weight="400" fill="#20242e">• intercept = O(1) succinct access</text>
+<text x="1341" y="602" font-size="10.5" font-weight="400" fill="#20242e">NO decompress / recompress per access.</text>
+<text x="1341" y="617" font-size="10.5" font-weight="400" fill="#20242e"></text>
+<text x="1341" y="632" font-size="10.5" font-weight="400" fill="#20242e">Lossless: the shared slope still lies in</text>
+<text x="1341" y="647" font-size="10.5" font-weight="400" fill="#20242e">each segment's feasible interval → ε holds.</text>
+<text x="1341" y="662" font-size="10.5" font-weight="400" fill="#20242e">(Intercept truncation adds +1 to ε.)</text>
+<path d="M625,579 L658,566" stroke="#3f51b5" stroke-width="1.8" fill="none" marker-end="url(#mk)"/>
+<path d="M625,585 L658,622" stroke="#3f51b5" stroke-width="1.8" fill="none" marker-end="url(#mk)"/>
+<path d="M1130,566 L1158,580" stroke="#3f51b5" stroke-width="1.8" fill="none" marker-end="url(#mk)"/>
+<path d="M1130,624 L1158,608" stroke="#3f51b5" stroke-width="1.8" fill="none" marker-end="url(#mk)"/>
+<path d="M1235,556 L1235,344" stroke="#3f51b5" stroke-width="1.8" fill="none" stroke-dasharray="5 4" marker-end="url(#mk)"/>
+<text x="1245" y="470" text-anchor="start" font-size="10.5" font-weight="400" fill="#3f51b5">same query path,</text>
+<text x="1245" y="484" text-anchor="start" font-size="10.5" font-weight="400" fill="#3f51b5">+ one O(1) hop</text>
+<rect x="30" y="760" width="1620" height="452" rx="12" fill="#efe9f5" stroke="#7a4fa3" stroke-width="1.4" opacity="0.5"/>
+<text x="48" y="784" font-size="14.5" font-weight="700" fill="#7a4fa3">DYNAMIC (§3) — make it updatable: a SHELF of static indexes (each run is the atom above)</text>
+<rect x="55" y="812" width="120" height="32" rx="16" fill="#eef0f3" stroke="#c8cdd6" stroke-width="1.6"/>
+<text x="115" y="832" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">insert key x</text>
+<rect x="205" y="800" width="440" height="46" rx="7" fill="#fff" stroke="#7a4fa3" stroke-width="1.5"/>
+<text x="216" y="817" font-size="11" font-weight="700" fill="#20242e">⑦ append-only (time series): extend the LAST segment within ε;</text>
+<text x="216" y="832" font-size="11" font-weight="400" fill="#20242e">else new segment, recurse up.   O(log_c m) amortized</text>
+<rect x="205" y="858" width="440" height="40" rx="7" fill="#fff" stroke="#7a4fa3" stroke-width="1.5"/>
+<text x="216" y="875" font-size="11" font-weight="700" fill="#20242e">⑧ arbitrary position → Bentley–Saxe logarithmic method (the shelf →)</text>
+<path d="M175,820 L203,818" stroke="#7a4fa3" stroke-width="1.8" fill="none" marker-end="url(#mk)"/>
+<path d="M175,828 L203,872" stroke="#7a4fa3" stroke-width="1.8" fill="none" marker-end="url(#mk)"/>
+<text x="700" y="798" text-anchor="start" font-size="11.5" font-weight="700" fill="#7a4fa3">shelf of runs — each is a COMPLETE static PGM (the §2 atom)</text>
+<rect x="685" y="810" width="26" height="44" rx="6" fill="#fff" stroke="#7a4fa3"/>
+<text x="698" y="829" text-anchor="middle" font-size="10" font-weight="700" fill="#4a2f6b">S0 (1)</text>
+<text x="698" y="845" text-anchor="middle" font-size="8" font-weight="400" fill="#8b6fb0">▲</text>
+<rect x="723" y="810" width="52" height="44" rx="6" fill="#fff" stroke="#7a4fa3"/>
+<text x="749" y="829" text-anchor="middle" font-size="10" font-weight="700" fill="#4a2f6b">S1 (2)</text>
+<text x="749" y="845" text-anchor="middle" font-size="8" font-weight="400" fill="#8b6fb0">▲</text>
+<rect x="787" y="810" width="104" height="44" rx="6" fill="#fff" stroke="#7a4fa3"/>
+<text x="839" y="829" text-anchor="middle" font-size="11" font-weight="700" fill="#4a2f6b">S2 (4)</text>
+<text x="839" y="845" text-anchor="middle" font-size="9" font-weight="400" fill="#8b6fb0">= atom</text>
+<rect x="903" y="810" width="172" height="44" rx="6" fill="#fff" stroke="#7a4fa3"/>
+<text x="989" y="829" text-anchor="middle" font-size="11" font-weight="700" fill="#4a2f6b">S3 (8)</text>
+<text x="989" y="845" text-anchor="middle" font-size="9" font-weight="400" fill="#8b6fb0">= atom</text>
+<path d="M645,878 L690,845" stroke="#7a4fa3" stroke-width="1.8" fill="none" marker-end="url(#mk)"/>
+<rect x="685" y="884" width="430" height="40" rx="7" fill="#fff" stroke="#7a4fa3" stroke-width="1.5"/>
+<text x="696" y="901" font-size="11" font-weight="700" fill="#20242e">insert = carry: merge full runs + x → rebuild the first empty run.</text>
+<text x="696" y="916" font-size="11" font-weight="400" fill="#20242e">O(log n) amortized</text>
+<rect x="685" y="936" width="205" height="36" rx="7" fill="#fff" stroke="#7a4fa3" stroke-width="1.5"/>
+<text x="696" y="953" font-size="11" font-weight="700" fill="#20242e">⑨ delete(k) = insert tombstone ⌫k</text>
+<rect x="905" y="936" width="260" height="36" rx="7" fill="#fff" stroke="#7a4fa3" stroke-width="1.5"/>
+<text x="916" y="953" font-size="11" font-weight="400" fill="#20242e">GC: ⌫k + k cancel when runs merge</text>
+<rect x="1185" y="808" width="445" height="72" rx="7" fill="#fff" stroke="#7a4fa3" stroke-width="1.5"/>
+<text x="1196" y="825" font-size="11" font-weight="700" fill="#20242e">⑩ lookup / range: search EVERY run, newest-first;</text>
+<text x="1196" y="840" font-size="11" font-weight="400" fill="#20242e">heap-merge the slices (tombstones win).</text>
+<text x="1196" y="855" font-size="11" font-weight="400" fill="#20242e">Theorem 2:  O(log n · (log m + log ε))</text>
+<rect x="1185" y="892" width="445" height="52" rx="7" fill="#fffaf2" stroke="#7a4fa3" stroke-width="1.5"/>
+<text x="1196" y="909" font-size="11" font-weight="400" fill="#20242e">insert / delete: O(log n) amortized.</text>
+<text x="1196" y="924" font-size="11" font-weight="400" fill="#20242e">The extra log n on reads = read amplification (the LSM bargain).</text>
+<path d="M1115,840 L1183,840" stroke="#7a4fa3" stroke-width="1.8" fill="none" marker-end="url(#mk)"/>
+<rect x="55" y="990" width="1575" height="56" rx="7" fill="#fff5f4" stroke="#cf4436" stroke-width="1.5"/>
+<text x="66" y="1007" font-size="11" font-weight="400" fill="#20242e">⚑ Skepticism (your note): a single-key change rebuilds a WHOLE run, and every read pays log n forever — the update granularity feels wrong, and</text>
+<text x="66" y="1022" font-size="11" font-weight="400" fill="#20242e">read-heavy workloads suffer. This is exactly the tension ALEX targets next, by absorbing inserts IN PLACE (gapped arrays) so reads stay at one structure.</text>
+<rect x="55" y="1066" width="1575" height="120" rx="7" fill="#f7f8fa" stroke="#e2e5ea" stroke-width="1.5"/>
+<text x="66" y="1083" font-size="11.5" font-weight="700" fill="#20242e">How it all fits — the static recursive PGM (§2) is the ATOM; everything else is an operation ON it or an arrangement OF it:</text>
+<text x="66" y="1098" font-size="11.5" font-weight="400" fill="#20242e">   • CONSTRUCTION (①②) builds one atom from sorted keys.        • QUERY (③④) reads one atom.</text>
+<text x="66" y="1113" font-size="11.5" font-weight="400" fill="#20242e">   • COMPRESSION (⑤⑥, §4) shrinks one atom's segments, losslessly, and keeps it queryable in place.</text>
+<text x="66" y="1128" font-size="11.5" font-weight="400" fill="#20242e">   • DYNAMIC (⑦–⑩, §3) makes it updatable by keeping a shelf of MANY atoms (runs of size 1,2,4,…): writes rebuild runs (carry/merge, tombstone, GC),</text>
+<text x="66" y="1143" font-size="11.5" font-weight="400" fill="#20242e">      reads search every run. Each run, internally, is queried by the very same ③ routine.</text>
+<text x="66" y="1158" font-size="11.5" font-weight="400" fill="#20242e">   • VARIANTS not shown: §5 distribution-aware (adapt to the QUERY workload) · §6 multicriteria auto-tuning (pick ε from a space/latency budget).</text>
+</svg>

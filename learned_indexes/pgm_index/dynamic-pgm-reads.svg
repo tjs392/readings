@@ -1,0 +1,149 @@
+<svg viewBox="0 0 1500 980" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif">
+<defs><marker id="q" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2f6f8f"/></marker><marker id="r" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7a4fa3"/></marker></defs>
+<rect x="0" y="0" width="1500" height="980" fill="#ffffff"/>
+<text x="750" y="40" text-anchor="middle" font-size="25" font-weight="700" fill="#20242e">Reading the Dynamic PGM: every query visits every run</text>
+<text x="750" y="65" text-anchor="middle" font-size="14" fill="#6b7280">A key can be in any run, so there is no single place to look. Newest run is checked first (so tombstones win).</text>
+<text x="40" y="104" font-size="15" font-weight="700" fill="#2f6f8f">① Point query  lookup(k)  — search each run with its own PGM, take the newest answer</text>
+<rect x="60" y="124" width="74" height="32" rx="6" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.8"/><text x="97" y="145" text-anchor="middle" font-size="13" font-family="ui-monospace,monospace" fill="#20242e">k</text>
+<rect x="262" y="150" width="76" height="52" rx="8" fill="#fafbfc" stroke="#b9bfca" stroke-dasharray="4 3"/>
+<text x="300" y="142" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">S0 (newest)</text>
+<rect x="274" y="164" width="26" height="26" fill="#f6dada" stroke="#cf4436"/>
+<text x="287" y="181" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#cf4436">⌫k</text>
+<rect x="496" y="150" width="128" height="82" rx="8" fill="#fafbfc" stroke="#b9bfca" stroke-dasharray="4 3"/>
+<text x="560" y="142" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">S2</text>
+<rect x="537" y="162" width="46" height="22" rx="4" fill="#fbedd4" stroke="#b06a14"/>
+<text x="560" y="177" text-anchor="middle" font-size="9.5" fill="#b06a14">root seg</text>
+<line x1="560" y1="184" x2="560" y2="194" stroke="#d9ad6a" stroke-width="1"/>
+<rect x="508" y="194" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="521" y="211" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">e</text>
+<rect x="534" y="194" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="547" y="211" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">h</text>
+<rect x="560" y="194" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="573" y="211" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">m</text>
+<rect x="586" y="194" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="599" y="211" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">q</text>
+<rect x="864" y="150" width="232" height="112" rx="8" fill="#fafbfc" stroke="#b9bfca" stroke-dasharray="4 3"/>
+<text x="980" y="142" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">S3 (oldest)</text>
+<rect x="957" y="162" width="46" height="22" rx="4" fill="#fbedd4" stroke="#b06a14"/>
+<text x="980" y="177" text-anchor="middle" font-size="9.5" fill="#b06a14">root seg</text>
+<rect x="912" y="192" width="44" height="20" rx="4" fill="#fdf4e6" stroke="#d9ad6a"/>
+<text x="934" y="206" text-anchor="middle" font-size="9" fill="#b06a14">seg</text>
+<rect x="1004" y="192" width="44" height="20" rx="4" fill="#fdf4e6" stroke="#d9ad6a"/>
+<text x="1026" y="206" text-anchor="middle" font-size="9" fill="#b06a14">seg</text>
+<line x1="980" y1="184" x2="934" y2="192" stroke="#d9ad6a" stroke-width="1"/>
+<line x1="980" y1="184" x2="1026" y2="192" stroke="#d9ad6a" stroke-width="1"/>
+<line x1="934" y1="212" x2="918" y2="224" stroke="#d9ad6a" stroke-width="0.8"/>
+<line x1="1026" y1="212" x2="1042" y2="224" stroke="#d9ad6a" stroke-width="0.8"/>
+<rect x="876" y="224" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="889" y="241" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">a</text>
+<rect x="902" y="224" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="915" y="241" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">k</text>
+<rect x="928" y="224" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="941" y="241" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">r</text>
+<rect x="954" y="224" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="967" y="241" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">t</text>
+<rect x="980" y="224" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="993" y="241" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">w</text>
+<rect x="1006" y="224" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1019" y="241" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">z</text>
+<rect x="1032" y="224" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1045" y="241" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">b2</text>
+<rect x="1058" y="224" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1071" y="241" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">d2</text>
+<line x1="134" y1="140" x2="246" y2="158" stroke="#2f6f8f" stroke-width="1.5" marker-end="url(#q)"/>
+<line x1="134" y1="146" x2="486" y2="178" stroke="#2f6f8f" stroke-width="1.5" marker-end="url(#q)"/>
+<line x1="134" y1="152" x2="846" y2="190" stroke="#2f6f8f" stroke-width="1.5" marker-end="url(#q)"/>
+<text x="300" y="290" text-anchor="middle" font-size="11" fill="#cf4436" font-weight="700">finds ⌫k (deleted)</text>
+<text x="560" y="290" text-anchor="middle" font-size="11" fill="#8b919d">no k here</text>
+<text x="980" y="290" text-anchor="middle" font-size="11" fill="#8b919d">real k is here…</text>
+<rect x="60" y="306" width="1180" height="40" rx="8" fill="#fdeeec" stroke="#cf4436"/>
+<text x="80" y="331" font-size="12.5" fill="#3a3f4b">Newest run wins: the tombstone ⌫k in S0 is seen before the real k in S3 → <tspan font-weight="700" fill="#cf4436">k reads as deleted.</tspan>  Cost = <tspan font-family="ui-monospace,monospace">O(log n) runs × (log m + log ε)</tspan>.</text>
+<line x1="40" y1="372" x2="1460" y2="372" stroke="#e2e5ea"/>
+<text x="40" y="404" font-size="15" font-weight="700" fill="#7a4fa3">② Range query  range(lo, hi)  — collect each run's slice, then heap-merge into one sorted stream</text>
+<rect x="60" y="424" width="150" height="32" rx="6" fill="#efe9f5" stroke="#7a4fa3" stroke-width="1.8"/><text x="135" y="445" text-anchor="middle" font-size="12.5" font-family="ui-monospace,monospace" fill="#20242e">[lo, hi]</text>
+<rect x="249" y="448" width="102" height="82" rx="8" fill="#fafbfc" stroke="#b9bfca" stroke-dasharray="4 3"/>
+<text x="300" y="440" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">S1+</text>
+<rect x="277" y="460" width="46" height="22" rx="4" fill="#fbedd4" stroke="#b06a14"/>
+<text x="300" y="475" text-anchor="middle" font-size="9.5" fill="#b06a14">root seg</text>
+<line x1="300" y1="482" x2="300" y2="492" stroke="#d9ad6a" stroke-width="1"/>
+<rect x="261" y="492" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="274" y="509" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">g</text>
+<rect x="287" y="492" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="300" y="509" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">j</text>
+<rect x="313" y="492" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="326" y="509" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">p</text>
+<rect x="287" y="492" width="26" height="26" fill="#e7d9f3" stroke="#7a4fa3" stroke-width="1.8"/>
+<text x="300" y="509" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#4a2f6b">j</text>
+<rect x="313" y="492" width="26" height="26" fill="#e7d9f3" stroke="#7a4fa3" stroke-width="1.8"/>
+<text x="326" y="509" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#4a2f6b">p</text>
+<rect x="556" y="448" width="128" height="82" rx="8" fill="#fafbfc" stroke="#b9bfca" stroke-dasharray="4 3"/>
+<text x="620" y="440" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">S2</text>
+<rect x="597" y="460" width="46" height="22" rx="4" fill="#fbedd4" stroke="#b06a14"/>
+<text x="620" y="475" text-anchor="middle" font-size="9.5" fill="#b06a14">root seg</text>
+<line x1="620" y1="482" x2="620" y2="492" stroke="#d9ad6a" stroke-width="1"/>
+<rect x="568" y="492" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="581" y="509" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">e</text>
+<rect x="594" y="492" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="607" y="509" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">h</text>
+<rect x="620" y="492" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="633" y="509" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">m</text>
+<rect x="646" y="492" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="659" y="509" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">q</text>
+<rect x="594" y="492" width="26" height="26" fill="#e7d9f3" stroke="#7a4fa3" stroke-width="1.8"/>
+<text x="607" y="509" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#4a2f6b">h</text>
+<rect x="620" y="492" width="26" height="26" fill="#e7d9f3" stroke="#7a4fa3" stroke-width="1.8"/>
+<text x="633" y="509" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#4a2f6b">m</text>
+<rect x="924" y="448" width="232" height="112" rx="8" fill="#fafbfc" stroke="#b9bfca" stroke-dasharray="4 3"/>
+<text x="1040" y="440" text-anchor="middle" font-size="12.5" font-weight="700" fill="#20242e">S3</text>
+<rect x="1017" y="460" width="46" height="22" rx="4" fill="#fbedd4" stroke="#b06a14"/>
+<text x="1040" y="475" text-anchor="middle" font-size="9.5" fill="#b06a14">root seg</text>
+<rect x="972" y="490" width="44" height="20" rx="4" fill="#fdf4e6" stroke="#d9ad6a"/>
+<text x="994" y="504" text-anchor="middle" font-size="9" fill="#b06a14">seg</text>
+<rect x="1064" y="490" width="44" height="20" rx="4" fill="#fdf4e6" stroke="#d9ad6a"/>
+<text x="1086" y="504" text-anchor="middle" font-size="9" fill="#b06a14">seg</text>
+<line x1="1040" y1="482" x2="994" y2="490" stroke="#d9ad6a" stroke-width="1"/>
+<line x1="1040" y1="482" x2="1086" y2="490" stroke="#d9ad6a" stroke-width="1"/>
+<line x1="994" y1="510" x2="978" y2="522" stroke="#d9ad6a" stroke-width="0.8"/>
+<line x1="1086" y1="510" x2="1102" y2="522" stroke="#d9ad6a" stroke-width="0.8"/>
+<rect x="936" y="522" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="949" y="539" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">a</text>
+<rect x="962" y="522" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="975" y="539" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">k</text>
+<rect x="988" y="522" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1001" y="539" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">l</text>
+<rect x="1014" y="522" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1027" y="539" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">n</text>
+<rect x="1040" y="522" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1053" y="539" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">r</text>
+<rect x="1066" y="522" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1079" y="539" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">t</text>
+<rect x="1092" y="522" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1105" y="539" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">w</text>
+<rect x="1118" y="522" width="26" height="26" fill="#eef0f3" stroke="#c8cdd6"/>
+<text x="1131" y="539" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#20242e">z</text>
+<rect x="962" y="522" width="26" height="26" fill="#e7d9f3" stroke="#7a4fa3" stroke-width="1.8"/>
+<text x="975" y="539" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#4a2f6b">k</text>
+<rect x="988" y="522" width="26" height="26" fill="#e7d9f3" stroke="#7a4fa3" stroke-width="1.8"/>
+<text x="1001" y="539" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#4a2f6b">l</text>
+<rect x="1014" y="522" width="26" height="26" fill="#e7d9f3" stroke="#7a4fa3" stroke-width="1.8"/>
+<text x="1027" y="539" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#4a2f6b">n</text>
+<line x1="210" y1="440" x2="250" y2="460" stroke="#7a4fa3" stroke-width="1.4" marker-end="url(#r)"/>
+<line x1="210" y1="444" x2="540" y2="480" stroke="#7a4fa3" stroke-width="1.4" marker-end="url(#r)"/>
+<line x1="210" y1="448" x2="900" y2="490" stroke="#7a4fa3" stroke-width="1.4" marker-end="url(#r)"/>
+<text x="300" y="600" font-size="11.5" fill="#7a4fa3">slice: j, p</text>
+<text x="620" y="600" font-size="11.5" fill="#7a4fa3">slice: h, m</text>
+<text x="1040" y="600" font-size="11.5" fill="#7a4fa3">slice: k, l, n</text>
+<path d="M300,608 C300,635 700,635 720,648 M620,608 C620,635 710,640 720,648 M1040,608 C1040,635 740,640 720,648" stroke="#c9b6e0" stroke-width="1.1" fill="none"/>
+<rect x="430" y="650" width="580" height="38" rx="8" fill="#efe9f5" stroke="#7a4fa3" stroke-width="1.6"/>
+<text x="720" y="674" text-anchor="middle" font-size="12.5" font-family="ui-monospace,monospace" fill="#4a2f6b">heap-merge (size b) → h, j, k, l, m, n, p   (sorted, tombstones removed)</text>
+<text x="60" y="724" font-size="12.5" fill="#3a3f4b">Each run returns the slice of its sorted array inside [lo,hi] (found via that run's PGM). A <tspan font-weight="700">heap of size b = #runs</tspan> merges the slices into one sorted</text>
+<text x="60" y="744" font-size="12.5" fill="#3a3f4b">output, dropping any key shadowed by a tombstone. Cost = <tspan font-family="ui-monospace,monospace">O(log n(log m + log ε) + K log log n)</tspan> (or +K if the K results fit in a buffer).</text>
+<rect x="40" y="772" width="1420" height="178" rx="10" fill="#fff6e8" stroke="#e7d4ad"/>
+<text x="62" y="800" font-size="14" font-weight="700" fill="#b06a14">The whole picture in one breath</text>
+<text x="62" y="826" font-size="12.5" fill="#3a3f4b"><tspan font-weight="700">Writes</tspan> stay cheap by never editing a run: insert carries up and rebuilds a run by merging; delete drops a tombstone; GC happens when runs merge. (figure 1)</text>
+<text x="62" y="846" font-size="12.5" fill="#3a3f4b"><tspan font-weight="700">Reads</tspan> pay for that by visiting <tspan font-weight="700">every run</tspan>: a point query searches all O(log n) runs newest-first; a range query slices each run and heap-merges. (this figure)</text>
+<text x="62" y="866" font-size="12.5" fill="#3a3f4b">Each run is a full static PGM, so "search a run" = the §2 recursive lookup (eval line → 2ε binary search, level by level) you already know.</text>
+<line x1="62" y1="884" x2="1438" y2="884" stroke="#ecdcbb"/>
+<text x="62" y="908" font-size="12.5" fill="#3a3f4b">So the dynamic PGM = <tspan font-weight="700">many §2 indexes + a binary-counter merge policy for writes + a search-all-runs policy for reads.</tspan></text>
+<text x="62" y="930" font-size="12" font-style="italic" fill="#8b919d">The extra log n factor on reads (because data is spread across runs) is precisely the cost ALEX removes by absorbing inserts in place instead.</text>
+</svg>
