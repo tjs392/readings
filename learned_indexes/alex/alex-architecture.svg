@@ -1,0 +1,120 @@
+<svg viewBox="0 0 1420 930" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif">
+<rect x="0" y="0" width="1420" height="930" fill="#ffffff"/>
+<defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6b7280"/></marker><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#cf4436"/></marker><marker id="ag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2c7d52"/></marker><marker id="ap" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7a4fa3"/></marker></defs>
+<text x="710.0" y="40" text-anchor="middle" font-size="24" font-weight="700" fill="#20242e">ALEX architecture: an adaptive RMI of pointer-routed models over gapped-array leaves</text>
+<text x="710.0" y="64" text-anchor="middle" font-size="13.5" font-weight="400" fill="#6b7280">Internal nodes route by COMPUTING an index into a stored pointer array (no key comparisons). The tree grows deep only where the CDF is hard.</text>
+<rect x="560" y="98" width="300" height="52" rx="8" fill="#e9ebf7" stroke="#3f51b5" stroke-width="1.5"/>
+<text x="710" y="120" text-anchor="middle" font-size="12.5" font-weight="700" fill="#3f51b5">Internal (root)</text>
+<text x="710" y="138" text-anchor="middle" font-size="10.5" font-weight="400" fill="#20242e">model computes slot index → pointer array</text>
+<rect x="600" y="158" width="64" height="22" rx="4" fill="#fff" stroke="#3f51b5" stroke-width="1.2"/>
+<text x="632" y="173" text-anchor="middle" font-size="9.5" font-weight="400" fill="#3f51b5">ptr 0</text>
+<rect x="670" y="158" width="64" height="22" rx="4" fill="#fff" stroke="#3f51b5" stroke-width="1.2"/>
+<text x="702" y="173" text-anchor="middle" font-size="9.5" font-weight="400" fill="#3f51b5">ptr 1</text>
+<rect x="740" y="158" width="64" height="22" rx="4" fill="#fff" stroke="#3f51b5" stroke-width="1.2"/>
+<text x="772" y="173" text-anchor="middle" font-size="9.5" font-weight="400" fill="#3f51b5">ptr 2</text>
+<rect x="810" y="158" width="64" height="22" rx="4" fill="#fff" stroke="#3f51b5" stroke-width="1.2"/>
+<text x="842" y="173" text-anchor="middle" font-size="9.5" font-weight="400" fill="#3f51b5">ptr 3</text>
+<rect x="150" y="250" width="250" height="40" rx="8" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.5"/>
+<text x="275" y="267" text-anchor="middle" font-size="11.5" font-weight="700" fill="#2f6f8f">Data node A</text>
+<text x="275" y="282" text-anchor="middle" font-size="9.5" font-weight="400" fill="#20242e">linear region → shallow</text>
+<rect x="560" y="250" width="300" height="46" rx="8" fill="#e9ebf7" stroke="#3f51b5" stroke-width="1.5"/>
+<text x="710" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#3f51b5">Internal B</text>
+<text x="710" y="285" text-anchor="middle" font-size="10" font-weight="400" fill="#20242e">curvy region → needs resolution</text>
+<rect x="1030" y="250" width="250" height="40" rx="8" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.5"/>
+<text x="1155" y="267" text-anchor="middle" font-size="11.5" font-weight="700" fill="#2f6f8f">Data node C</text>
+<text x="1155" y="282" text-anchor="middle" font-size="9.5" font-weight="400" fill="#20242e">linear region → shallow</text>
+<rect x="620" y="304" width="90" height="22" rx="4" fill="#fff" stroke="#3f51b5" stroke-width="1.2"/>
+<text x="665" y="319" text-anchor="middle" font-size="9.5" font-weight="400" fill="#3f51b5">ptr 0</text>
+<rect x="720" y="304" width="90" height="22" rx="4" fill="#fff" stroke="#3f51b5" stroke-width="1.2"/>
+<text x="765" y="319" text-anchor="middle" font-size="9.5" font-weight="400" fill="#3f51b5">ptr 1</text>
+<rect x="540" y="380" width="150" height="38" rx="8" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.5"/>
+<text x="615" y="403" text-anchor="middle" font-size="11" font-weight="700" fill="#2f6f8f">Data B1</text>
+<rect x="720" y="380" width="150" height="38" rx="8" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.5"/>
+<text x="795" y="403" text-anchor="middle" font-size="11" font-weight="700" fill="#2f6f8f">Data B2</text>
+<path d="M632,180 L275,248" stroke="#6b7280" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+<path d="M700,180 L690,248" stroke="#6b7280" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+<path d="M770,180 L730,248" stroke="#6b7280" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+<path d="M838,180 L1155,248" stroke="#6b7280" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+<text x="420" y="212" text-anchor="start" font-size="9.5" font-weight="700" fill="#7a4fa3">slots 1 &amp; 2 → same child (multi-pointer: room to split later)</text>
+<path d="M665,326 L615,378" stroke="#6b7280" stroke-width="1.4" fill="none" marker-end="url(#a)"/>
+<path d="M745,326 L795,378" stroke="#6b7280" stroke-width="1.4" fill="none" marker-end="url(#a)"/>
+<text x="615" y="462" text-anchor="start" font-size="9.5" font-weight="400" fill="#8b919d">inside a data node:</text>
+<rect x="540" y="470" width="24" height="22" rx="3" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.3"/>
+<text x="552.0" y="483.64" text-anchor="middle" font-size="11" font-weight="400" fill="#20242e">3</text>
+<rect x="564" y="470" width="24" height="22" rx="3" fill="#eef0f3" stroke="#c8cdd6" stroke-width="1"/>
+<rect x="588" y="470" width="24" height="22" rx="3" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.3"/>
+<text x="600.0" y="483.64" text-anchor="middle" font-size="11" font-weight="400" fill="#20242e">7</text>
+<rect x="612" y="470" width="24" height="22" rx="3" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.3"/>
+<text x="624.0" y="483.64" text-anchor="middle" font-size="11" font-weight="400" fill="#20242e">9</text>
+<rect x="636" y="470" width="24" height="22" rx="3" fill="#eef0f3" stroke="#c8cdd6" stroke-width="1"/>
+<rect x="660" y="470" width="24" height="22" rx="3" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.3"/>
+<text x="672.0" y="483.64" text-anchor="middle" font-size="11" font-weight="400" fill="#20242e">12</text>
+<rect x="684" y="470" width="24" height="22" rx="3" fill="#eef0f3" stroke="#c8cdd6" stroke-width="1"/>
+<rect x="708" y="470" width="24" height="22" rx="3" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.3"/>
+<text x="720.0" y="483.64" text-anchor="middle" font-size="11" font-weight="400" fill="#20242e">15</text>
+<text x="552.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#2f6f8f">1</text>
+<text x="576.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#8b919d">0</text>
+<text x="600.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#2f6f8f">1</text>
+<text x="624.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#2f6f8f">1</text>
+<text x="648.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#8b919d">0</text>
+<text x="672.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#2f6f8f">1</text>
+<text x="696.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#8b919d">0</text>
+<text x="720.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#2f6f8f">1</text>
+<text x="532" y="507" text-anchor="end" font-size="9.5" font-weight="400" fill="#8b919d">bitmap</text>
+<rect x="150" y="470" width="24" height="22" rx="3" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.3"/>
+<text x="162.0" y="483.64" text-anchor="middle" font-size="11" font-weight="400" fill="#20242e">2</text>
+<rect x="174" y="470" width="24" height="22" rx="3" fill="#eef0f3" stroke="#c8cdd6" stroke-width="1"/>
+<rect x="198" y="470" width="24" height="22" rx="3" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.3"/>
+<text x="210.0" y="483.64" text-anchor="middle" font-size="11" font-weight="400" fill="#20242e">5</text>
+<rect x="222" y="470" width="24" height="22" rx="3" fill="#eef0f3" stroke="#c8cdd6" stroke-width="1"/>
+<rect x="246" y="470" width="24" height="22" rx="3" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.3"/>
+<text x="258.0" y="483.64" text-anchor="middle" font-size="11" font-weight="400" fill="#20242e">8</text>
+<rect x="270" y="470" width="24" height="22" rx="3" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.3"/>
+<text x="282.0" y="483.64" text-anchor="middle" font-size="11" font-weight="400" fill="#20242e">11</text>
+<text x="162.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#2f6f8f">1</text>
+<text x="186.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#8b919d">0</text>
+<text x="210.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#2f6f8f">1</text>
+<text x="234.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#8b919d">0</text>
+<text x="258.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#2f6f8f">1</text>
+<text x="282.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#2f6f8f">1</text>
+<text x="142" y="507" text-anchor="end" font-size="9.5" font-weight="400" fill="#8b919d">bitmap</text>
+<rect x="1030" y="470" width="24" height="22" rx="3" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.3"/>
+<text x="1042.0" y="483.64" text-anchor="middle" font-size="11" font-weight="400" fill="#20242e">20</text>
+<rect x="1054" y="470" width="24" height="22" rx="3" fill="#eef0f3" stroke="#c8cdd6" stroke-width="1"/>
+<rect x="1078" y="470" width="24" height="22" rx="3" fill="#eef0f3" stroke="#c8cdd6" stroke-width="1"/>
+<rect x="1102" y="470" width="24" height="22" rx="3" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.3"/>
+<text x="1114.0" y="483.64" text-anchor="middle" font-size="11" font-weight="400" fill="#20242e">24</text>
+<rect x="1126" y="470" width="24" height="22" rx="3" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.3"/>
+<text x="1138.0" y="483.64" text-anchor="middle" font-size="11" font-weight="400" fill="#20242e">27</text>
+<rect x="1150" y="470" width="24" height="22" rx="3" fill="#eef0f3" stroke="#c8cdd6" stroke-width="1"/>
+<text x="1042.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#2f6f8f">1</text>
+<text x="1066.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#8b919d">0</text>
+<text x="1090.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#8b919d">0</text>
+<text x="1114.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#2f6f8f">1</text>
+<text x="1138.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#2f6f8f">1</text>
+<text x="1162.0" y="507" text-anchor="middle" font-size="10" font-weight="700" fill="#8b919d">0</text>
+<text x="1022" y="507" text-anchor="end" font-size="9.5" font-weight="400" fill="#8b919d">bitmap</text>
+<path d="M710,150 L700,156" stroke="#cf4436" stroke-width="2.2" fill="none" marker-end="url(#ar)"/>
+<text x="905" y="116" text-anchor="start" font-size="12" font-weight="700" fill="#cf4436">lookup(k):</text>
+<text x="905" y="134" text-anchor="start" font-size="10" font-weight="400" fill="#cf4436">① root model → slot index (exact, no search)</text>
+<text x="905" y="152" text-anchor="start" font-size="10" font-weight="400" fill="#cf4436">② follow pointer → Internal B → slot index</text>
+<text x="905" y="170" text-anchor="start" font-size="10" font-weight="400" fill="#cf4436">③ → Data B1 → model predicts → exp-search</text>
+<rect x="40" y="560" width="600" height="80" rx="8" fill="#f7f8fa" stroke="#c8cdd6" stroke-width="1.5"/>
+<text x="60" y="584" text-anchor="start" font-size="12.5" font-weight="700" fill="#3f51b5">Internal nodes</text>
+<text x="60" y="606" text-anchor="start" font-size="10.5" font-weight="400" fill="#20242e">• Models are EXACT by construction → no search in internal nodes, just compute the slot.</text>
+<text x="60" y="624" text-anchor="start" font-size="10.5" font-weight="400" fill="#20242e">• Cost = one pointer chase per level. Power-of-2 slots; multiple slots may alias one child.</text>
+<rect x="660" y="560" width="720" height="80" rx="8" fill="#f7f8fa" stroke="#c8cdd6" stroke-width="1.5"/>
+<text x="680" y="584" text-anchor="start" font-size="12.5" font-weight="700" fill="#2f6f8f">Data nodes (leaves)</text>
+<text x="680" y="606" text-anchor="start" font-size="10.5" font-weight="400" fill="#20242e">• Linear model + gapped key array + parallel payload array + occupancy bitmap (skip gaps on scan).</text>
+<text x="680" y="624" text-anchor="start" font-size="10.5" font-weight="400" fill="#20242e">• Records stored IN-LEAF (clustered). Final position via model + exponential search (no ε bound).</text>
+<rect x="40" y="660" width="1340" height="58" rx="8" fill="#e6f2ec" stroke="#2c7d52" stroke-width="1.5"/>
+<text x="60" y="683" text-anchor="start" font-size="12.5" font-weight="700" fill="#2c7d52">Variable resolution (the key idea):</text>
+<text x="60" y="703" text-anchor="start" font-size="10.5" font-weight="400" fill="#20242e">Linear stretches (A, C) go straight to a data node; curvy stretches (B) recurse deeper. The goal is data nodes whose keys are roughly LINEAR — not equal-sized nodes.</text>
+<rect x="40" y="738" width="1340" height="156" rx="8" fill="#fff6e8" stroke="#e7d4ad" stroke-width="1.5"/>
+<text x="62" y="764" text-anchor="start" font-size="13" font-weight="700" fill="#b06a14">How the routing compares</text>
+<text x="62" y="788" text-anchor="start" font-size="10.5" font-weight="400" fill="#20242e">• Kraska RMI: fixed 2–3 levels, models fit to data, aims for EQUAL partitions. Internal models route to the next model.</text>
+<text x="62" y="808" text-anchor="start" font-size="10.5" font-weight="400" fill="#20242e">• PGM: NO pointers — each level is a contiguous array of segments; routing is pure arithmetic (index = base + i·size) + a 2ε search.</text>
+<text x="62" y="828" text-anchor="start" font-size="10.5" font-weight="400" fill="#20242e">• ALEX: hybrid — model COMPUTES an index (like PGM) but into a STORED pointer array (like a B+-tree) → children can be heterogeneous and movable.</text>
+<line x1="62" y1="844" x2="1358" y2="844" stroke="#ecdcbb" stroke-width="1.4"/>
+<text x="62" y="868" text-anchor="start" font-size="10.5" font-weight="700" fill="#7a4fa3">→ The pointer array is the price of in-place mutability; PGM stays pointer-free precisely because it never mutates in place (it rebuilds via the shelf).</text>
+</svg>

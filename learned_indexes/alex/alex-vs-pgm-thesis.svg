@@ -1,0 +1,57 @@
+<svg viewBox="0 0 1340 840" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif">
+<rect x="0" y="0" width="1340" height="840" fill="#ffffff"/>
+<defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6b7280"/></marker><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#cf4436"/></marker><marker id="ag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2c7d52"/></marker><marker id="ap" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7a4fa3"/></marker></defs>
+<text x="670.0" y="40" text-anchor="middle" font-size="24" font-weight="700" fill="#20242e">ALEX vs PGM — and where my thesis sits</text>
+<text x="670.0" y="64" text-anchor="middle" font-size="13.5" font-weight="400" fill="#6b7280">The two ends of the updatable-learned-index design space, and the synthesis my preferences point to.</text>
+<rect x="180" y="96" width="360" height="40" rx="8" fill="#fbedd4" stroke="#b06a14" stroke-width="1.5"/>
+<text x="360.0" y="121" text-anchor="middle" font-size="15" font-weight="700" fill="#b06a14">PGM</text>
+<rect x="560" y="96" width="360" height="40" rx="8" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.5"/>
+<text x="740.0" y="121" text-anchor="middle" font-size="15" font-weight="700" fill="#2f6f8f">ALEX</text>
+<rect x="940" y="96" width="360" height="40" rx="8" fill="#efe9f5" stroke="#7a4fa3" stroke-width="1.5"/>
+<text x="1120.0" y="121" text-anchor="middle" font-size="15" font-weight="700" fill="#7a4fa3">My thesis</text>
+<line x1="160" y1="150" x2="1300" y2="150" stroke="#c8cdd6" stroke-width="1"/>
+<text x="150" y="198.0" text-anchor="end" font-size="11.5" font-weight="700" fill="#20242e">Navigation</text>
+<text x="192" y="190.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">computed into a CONTIGUOUS array — no =</text>
+<text x="192" y="206.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">pointers (index base+i·size)</text>
+<text x="572" y="190.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">model computes an index into a STORED →</text>
+<text x="572" y="206.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">pointer array dereference</text>
+<text x="952" y="190.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">computed + contiguous via a GAPPED array</text>
+<text x="952" y="206.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">segment (keep pointer-free)</text>
+<line x1="160" y1="238" x2="1300" y2="238" stroke="#c8cdd6" stroke-width="1"/>
+<text x="150" y="286.0" text-anchor="end" font-size="11.5" font-weight="700" fill="#20242e">Error / last mile</text>
+<text x="192" y="278.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">hard ε bound → fixed 2ε binary search</text>
+<text x="572" y="278.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">emergent error → exponential search (no</text>
+<text x="572" y="294.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">bound)</text>
+<text x="952" y="278.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">hard ε bound → fixed 2ε search (keep the</text>
+<text x="952" y="294.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">guarantee)</text>
+<line x1="160" y1="326" x2="1300" y2="326" stroke="#c8cdd6" stroke-width="1"/>
+<text x="150" y="374.0" text-anchor="end" font-size="11.5" font-weight="700" fill="#20242e">Updates</text>
+<text x="192" y="366.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">external SHELF of static indexes runs)</text>
+<text x="192" y="382.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">(rebuild</text>
+<text x="572" y="366.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">in-place gapped arrays + local node</text>
+<text x="572" y="382.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">split</text>
+<text x="952" y="366.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">in-place LOCAL ε-split (no shelf)</text>
+<line x1="160" y1="414" x2="1300" y2="414" stroke="#c8cdd6" stroke-width="1"/>
+<text x="150" y="462.0" text-anchor="end" font-size="11.5" font-weight="700" fill="#20242e">Trigger</text>
+<text x="192" y="454.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">n/a (static) / shelf merge</text>
+<text x="572" y="454.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">reactive cost model (dᵤ, 50% deviation)</text>
+<text x="952" y="454.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">deterministic: split iff ε would break</text>
+<line x1="160" y1="502" x2="1300" y2="502" stroke="#c8cdd6" stroke-width="1"/>
+<text x="150" y="550.0" text-anchor="end" font-size="11.5" font-weight="700" fill="#20242e">Read cost</text>
+<text x="192" y="542.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">O(log m + log ε), pointer-free,</text>
+<text x="192" y="558.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">cache-friendly</text>
+<text x="572" y="542.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">one pointer chase / level; shallow tree</text>
+<text x="952" y="542.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">O(log m + log ε), pointer-free</text>
+<line x1="160" y1="590" x2="1300" y2="590" stroke="#c8cdd6" stroke-width="1"/>
+<text x="150" y="638.0" text-anchor="end" font-size="11.5" font-weight="700" fill="#20242e">Guarantee</text>
+<text x="192" y="630.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">I/O-optimal, provable</text>
+<text x="572" y="630.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">none (degrades under drift)</text>
+<text x="952" y="630.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">ε-guaranteed + bounded local update</text>
+<text x="952" y="646.0" text-anchor="start" font-size="9.8" font-weight="400" fill="#20242e">(goal)</text>
+<line x1="160" y1="678" x2="1300" y2="678" stroke="#c8cdd6" stroke-width="1"/>
+<rect x="160" y="698" width="1140" height="120" rx="8" fill="#efe9f5" stroke="#7a4fa3" stroke-width="1.5"/>
+<text x="180" y="724" text-anchor="start" font-size="13.5" font-weight="700" fill="#7a4fa3">The synthesis my taste points to</text>
+<text x="180" y="748" text-anchor="start" font-size="10.5" font-weight="400" fill="#20242e">Mutable like ALEX, pointer-free + ε-bounded like PGM.  Keep PGM's guarantee and pointer-free navigation; borrow ALEX's local in-place split — but trigger it by</text>
+<text x="180" y="768" text-anchor="start" font-size="10.5" font-weight="400" fill="#20242e">the ε-invariant (not a cost model) and cut at the ε-forced boundary (not the midpoint). The gapped SEGMENT array gives ALEX's movability without ALEX's pointer chase.</text>
+<text x="180" y="794" text-anchor="start" font-size="10.5" font-weight="700" fill="#7a4fa3">Feasibility is free: sub-range monotonicity (PGM §2.1) proves any interior split keeps both halves ε-valid. Open part: bound how far local splits drift from optimal m (merge-on-underflow).</text>
+</svg>

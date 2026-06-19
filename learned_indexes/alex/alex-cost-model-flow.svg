@@ -1,0 +1,67 @@
+<svg viewBox="0 0 1280 860" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif">
+<rect x="0" y="0" width="1280" height="860" fill="#ffffff"/>
+<defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6b7280"/></marker><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#cf4436"/></marker><marker id="ag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2c7d52"/></marker><marker id="ap" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7a4fa3"/></marker></defs>
+<text x="640.0" y="40" text-anchor="middle" font-size="24" font-weight="700" fill="#20242e">The insert decision: how ALEX picks expand vs. split (the reactive cost model)</text>
+<text x="640.0" y="64" text-anchor="middle" font-size="13.5" font-weight="400" fill="#6b7280">Every choice is a cost estimate, not a guarantee — magic constants (dᵤ, 50%), measured after the fact. This whole box is what an ε-invariant would replace.</text>
+<rect x="490" y="96" width="300" height="40" rx="8" fill="#e3eef2" stroke="#2f6f8f" stroke-width="1.5"/>
+<text x="640.0" y="120.0" text-anchor="middle" font-size="11" font-weight="400" fill="#20242e">insert(key) → TraverseToLeaf → data node</text>
+<path d="M640,136 L640,162" stroke="#6b7280" stroke-width="1.7" fill="none" marker-end="url(#a)"/>
+<rect x="490" y="162" width="300" height="40" rx="8" fill="#fbedd4" stroke="#b06a14" stroke-width="1.5"/>
+<text x="640.0" y="186.0" text-anchor="middle" font-size="11" font-weight="400" fill="#20242e">node full?  (next insert &gt; dᵤ = 0.8)</text>
+<path d="M490,182 L300,182" stroke="#6b7280" stroke-width="1.7" fill="none" marker-end="url(#a)"/>
+<line x1="300" y1="182" x2="300" y2="235" stroke="#6b7280" stroke-width="1.7"/>
+<path d="M300,235 L300,255" stroke="#6b7280" stroke-width="1.7" fill="none" marker-end="url(#a)"/>
+<text x="305" y="200" text-anchor="start" font-size="10" font-weight="700" fill="#2c7d52">NO</text>
+<rect x="170" y="255" width="260" height="56" rx="8" fill="#e6f2ec" stroke="#2c7d52" stroke-width="1.5"/>
+<text x="300.0" y="279.0" text-anchor="middle" font-size="10" font-weight="400" fill="#20242e">model-predict pos → gap? insert :</text>
+<text x="300.0" y="295.0" text-anchor="middle" font-size="10" font-weight="400" fill="#20242e">shift to nearest gap.  O(log n) whp</text>
+<path d="M640,202 L640,230" stroke="#6b7280" stroke-width="1.7" fill="none" marker-end="url(#a)"/>
+<text x="650" y="220" text-anchor="start" font-size="10" font-weight="700" fill="#cf4436">YES (full)</text>
+<rect x="470" y="230" width="340" height="44" rx="8" fill="#fbedd4" stroke="#b06a14" stroke-width="1.5"/>
+<text x="640.0" y="248.0" text-anchor="middle" font-size="10" font-weight="400" fill="#20242e">compare EXPECTED vs EMPIRICAL cost</text>
+<text x="640.0" y="264.0" text-anchor="middle" font-size="10" font-weight="400" fill="#20242e">(stats: avg exp-search iters, avg shifts/insert)</text>
+<path d="M640,274 L640,300" stroke="#6b7280" stroke-width="1.7" fill="none" marker-end="url(#a)"/>
+<rect x="470" y="300" width="340" height="34" rx="8" fill="#fbedd4" stroke="#b06a14" stroke-width="1.5"/>
+<text x="640.0" y="321.0" text-anchor="middle" font-size="11" font-weight="400" fill="#20242e">deviation &lt; 50% ?</text>
+<path d="M470,317 L360,317" stroke="#6b7280" stroke-width="1.7" fill="none" marker-end="url(#a)"/>
+<line x1="360" y1="317" x2="360" y2="360" stroke="#6b7280" stroke-width="1.7"/>
+<path d="M360,360 L360,380" stroke="#6b7280" stroke-width="1.7" fill="none" marker-end="url(#a)"/>
+<text x="365" y="335" text-anchor="start" font-size="10" font-weight="700" fill="#2c7d52">YES</text>
+<rect x="220" y="380" width="280" height="44" rx="8" fill="#e6f2ec" stroke="#2c7d52" stroke-width="1.5"/>
+<text x="360.0" y="398.0" text-anchor="middle" font-size="10" font-weight="400" fill="#20242e">EXPAND + rescale model</text>
+<text x="360.0" y="414.0" text-anchor="middle" font-size="10" font-weight="400" fill="#20242e">(no retrain) — the common case</text>
+<path d="M640,334 L640,380" stroke="#6b7280" stroke-width="1.7" fill="none" marker-end="url(#a)"/>
+<text x="648" y="360" text-anchor="start" font-size="10" font-weight="700" fill="#cf4436">NO (&gt;50% — model is off)</text>
+<rect x="460" y="380" width="360" height="40" rx="8" fill="#fdeeec" stroke="#cf4436" stroke-width="1.5"/>
+<text x="640.0" y="404.0" text-anchor="middle" font-size="10.5" font-weight="400" fill="#20242e">pick the CHEAPEST of three (intra-node cost):</text>
+<path d="M640,420 L640,448" stroke="#6b7280" stroke-width="1.7" fill="none" marker-end="url(#a)"/>
+<rect x="320" y="448" width="200" height="44" rx="8" fill="#fdeeec" stroke="#cf4436" stroke-width="1.5"/>
+<text x="420.0" y="466.0" text-anchor="middle" font-size="10" font-weight="400" fill="#20242e">expand + RETRAIN</text>
+<text x="420.0" y="482.0" text-anchor="middle" font-size="10" font-weight="400" fill="#20242e">model</text>
+<rect x="540" y="448" width="200" height="44" rx="8" fill="#fdeeec" stroke="#cf4436" stroke-width="1.5"/>
+<text x="640.0" y="466.0" text-anchor="middle" font-size="10" font-weight="400" fill="#20242e">split SIDEWAYS</text>
+<text x="640.0" y="482.0" text-anchor="middle" font-size="10" font-weight="400" fill="#20242e">(B+-tree-like)</text>
+<rect x="760" y="448" width="200" height="44" rx="8" fill="#fdeeec" stroke="#cf4436" stroke-width="1.5"/>
+<text x="860.0" y="466.0" text-anchor="middle" font-size="10" font-weight="400" fill="#20242e">split DOWN</text>
+<text x="860.0" y="482.0" text-anchor="middle" font-size="10" font-weight="400" fill="#20242e">(local depth +1)</text>
+<path d="M420,420 L420,446" stroke="#6b7280" stroke-width="1.4" fill="none" marker-end="url(#a)"/>
+<path d="M640,420 L640,446" stroke="#6b7280" stroke-width="1.4" fill="none" marker-end="url(#a)"/>
+<path d="M860,420 L860,446" stroke="#6b7280" stroke-width="1.4" fill="none" marker-end="url(#a)"/>
+<text x="420" y="432" text-anchor="middle" font-size="9.5" font-weight="400" fill="#8b919d">(always splits in 2)</text>
+<rect x="60" y="540" width="560" height="120" rx="8" fill="#f7f8fa" stroke="#c8cdd6" stroke-width="1.5"/>
+<text x="80" y="566" text-anchor="start" font-size="12.5" font-weight="700" fill="#b06a14">Why does empirical cost deviate?</text>
+<text x="80" y="588" text-anchor="start" font-size="10.5" font-weight="400" fill="#20242e">Inserted keys don't follow the existing distribution → model goes inaccurate</text>
+<text x="80" y="606" text-anchor="start" font-size="10.5" font-weight="400" fill="#20242e">→ long fully-packed regions → an insert shifts up to half the node → O(n) worst case.</text>
+<text x="80" y="632" text-anchor="start" font-size="10.5" font-weight="700" fill="#cf4436">i.e. the cost model mis-predicts EXACTLY under distribution shift — the robustness failure mode.</text>
+<rect x="660" y="540" width="560" height="120" rx="8" fill="#efe9f5" stroke="#7a4fa3" stroke-width="1.5"/>
+<text x="680" y="566" text-anchor="start" font-size="12.5" font-weight="700" fill="#7a4fa3">For my thesis — delete this whole box</text>
+<text x="680" y="588" text-anchor="start" font-size="10.5" font-weight="400" fill="#20242e">The triggers are heuristics: dᵤ=0.8, the 50% threshold, 'lowest expected cost' —</text>
+<text x="680" y="606" text-anchor="start" font-size="10.5" font-weight="400" fill="#20242e">all reactive + approximate + 'works in our experience'. My ε-invariant replaces it with</text>
+<text x="680" y="624" text-anchor="start" font-size="10.5" font-weight="400" fill="#20242e">ONE deterministic rule: split iff a key would violate ε, cut where segmentation forces it.</text>
+<text x="680" y="650" text-anchor="start" font-size="10.5" font-weight="700" fill="#7a4fa3">Paper framing: 'we trade a cost-model-driven policy for a hard invariant.'</text>
+<rect x="60" y="690" width="1160" height="140" rx="8" fill="#fff6e8" stroke="#e7d4ad" stroke-width="1.5"/>
+<text x="80" y="716" text-anchor="start" font-size="12.5" font-weight="700" fill="#b06a14">The honest counter (keep me calibrated)</text>
+<text x="80" y="740" text-anchor="start" font-size="10.5" font-weight="400" fill="#20242e">ε bounds prediction error in POSITIONS, not wall-clock LATENCY (cache misses, pointer chases, shifts aren't in ε). ALEX's cost model, fragile as it is, targets actual time.</text>
+<text x="80" y="762" text-anchor="start" font-size="10.5" font-weight="400" fill="#20242e">Resolution: keep ε as the structural INVARIANT (what I prove), treat latency as EVIDENCE (the experiment shows the invariant also yields good time). Don't claim ε solves latency.</text>
+<text x="80" y="790" text-anchor="start" font-size="10.5" font-weight="400" fill="#6b7280" font-style="italic">Also note: deletes don't shift → don't degrade the model (asymmetry). And ALEX never reclaims depth (merge unimplemented) — so even ALEX punts my Hard Part 2.</text>
+</svg>
