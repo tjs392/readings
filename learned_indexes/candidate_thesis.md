@@ -1,166 +1,177 @@
 # Research Compass — learned indexes (a stance, NOT a commitment)
 
-> **Purpose.** A *living research stance*, not a locked thesis. Records what I want and *why*, what to borrow, what to avoid, and the direction I'm circling — refined as I finish the literature. **I won't commit until the "still need to read" list is done.** Judgment without premature deciding.
->
-> **How this doc is organized:** §1–4 = my values (wants / borrow / avoid / the gap). §5 = the core candidate. §6 = **Ideas Ledger** (every idea I've had, tagged ⭐ promising / 🔧 optional / 🗄️ set-aside). §7 = **Design Razors** (the principles I keep rediscovering). §8 = reading queue.
+> **Purpose.** A *living research stance*, not a locked thesis. Records what I want and *why*, what to borrow/avoid, the direction I'm circling, and every idea I've considered (with a status). **I will not commit until I've read the "still need" list (§9).** Captures judgment without premature decisions.
+> **How it's organized:** §1 is the **Ideas Ledger** (the map — every idea + status). §2 the **razors** (principles I keep rediscovering). §3–6 the reasoning (wants, borrow, avoid, the gap). §7 the **core mechanism**. §8 enhancements/alternatives (secondary). §9 what to read. Detail lives in §7–8; the Ledger is the index to it.
 
 ---
 
-## 1. What I want (desiderata) + why
+## 1. ★ Ideas Ledger (the map)
 
-Each is a *goal with a reason*, not a design. **⚠️ They trade off — I can't maximize all.** The Tradeoff column is the honest part. Deepest recurring tensions: **slack/gaps (cheap in-place updates) vs density (space + fast scans)**, and **rigid/simple (concurrency + predictable writes) vs adaptive/clever (performance + robustness)**.
+Status key: 🟢 **core** (the thesis) · 🔵 **promising** (compatible, serves a desideratum, build-worthy) · 🟡 **optional** (garnish / space-only / future work) · 🔴 **set aside** (considered, not pursuing — reason given).
+
+| # | Idea | Status | One-line |
+|---|---|---|---|
+| I1 | **In-place ε-split** (split a segment locally on ε-violation; free by sub-range monotonicity) | 🟢 core | the move that occupies the empty cell; split is *free*, no rebuild |
+| I2 | **Local merge-on-underflow** (B+-tree-style, incremental — NOT bulk) | 🟢 core | the balancer; underflow = *jointly ε-coverable with neighbor* (NOT too-few-keys); incremental, unlike LIPP's bulk rebuild |
+| I3 | **Segment-count bound `c·m`** under arbitrary updates | 🟢 core | **THE theorem.** Static `M ≤ 2m−1` for irreducible = *free* (charging off the free lemma — lit-check it). Contribution = *maintain* irreducibility under adversarial insert+**delete** w/ bounded amortized work; `c = 2 + f(lazy, proactive)` |
+| I4 | **Gapped *segment* array + bitmap → PMA** (pointer-free contiguous layout) | 🟢 core | Hard Part 1; computed (not pointer) routing → use **PMA** (proven O(log²n)/update), not ad-hoc gaps. Empty cell = pointer-free + in-place; PMA = the 40-yr-old feasibility witness |
+| I5 | **Proactive ε-proximity splitting** (split when error nears the bound, before violation) | 🔵 promising | preserves hard ε, smooths writes (A4), catches drift early, *proactive* frontier |
+| I6 | **Defer merge/rebalance to background** (defer the *optimization*, never the *guarantee*) | 🔵 promising | salvaged kernel of the 2ε idea — keeps ε hard, moves rare expensive work off critical path |
+| I7 | **Per-segment adaptive transform `G`** (disjoint, cheap menu, bit-trick log) | 🟡 optional | space-only, lookup-neutral, complicates merge; worst case = PGM (safe). Activate only if index too big |
+| I8 | **Cost-aware `G` selection** (Tier 2) | 🟡 optional | adds knob + workload dependency; default skip (fixed threshold beats tunable λ) |
+| I9 | **Connected spline + per-piece `G`, greedy** (not optimal) | 🟡 optional | documented alternative to disjoint; smaller, but pinned halves weaken free-split. Pick by measurement |
+| I10 | **2ε relaxation + deferred cleanup** (insert past ε, flag dirty, clean later) | 🔴 set aside | collapses into ALEX — surrenders the *provable* bound, makes the theorem balancer-contingent. (Kernel salvaged → I6) |
+| I11 | **Shelf-of-RadixSplines** (RS as the per-pile index in a PGM shelf) | 🔴 set aside | doesn't remove read amplification — *the shelf is the problem, not the pile index*. Rederives RS-in-LSM |
+| I12 | **Free polynomial per-piece models** (vs linear) | 🔴 set aside | loses convex-hull/optimality + free-split machinery, monotonicity not free, eval cost — and curvature is already handled by adding lines |
+| I13 | **Optimal continuous spline + `G`** (convex-hull, not greedy) | 🔴 set aside | continuity + `G` + optimality → coupled DP build (O(n²m), not incremental) — fatal for a dynamic index |
+
+*Read the Ledger top-to-bottom: the 🟢 rows are the thesis, the 🔵 rows are how it could work better, the 🟡 rows are reserve options, the 🔴 rows are dead ends I've reasoned through (kept so I don't revisit them).*
+
+---
+
+## 2. Design razors (principles I keep rediscovering)
+
+- **R1 — The hard ε-bound is non-negotiable.** It's the one thing nobody else has. The moment a key is allowed past ε "temporarily," I'm ALEX with extra steps. *Defer the optimization, never the guarantee.*
+- **R2 — Does this couple the pieces?** Disjoint segments are independent → local split/merge works + free lemma holds. Continuity / cross-piece optimization / shared knots *couple* pieces → fight locality. A *filter*, not a veto, but disjoint is the default for a reason.
+- **R3 — Structural guarantee > hope-the-tuning-is-right.** The recurring failure of ALEX (cost model) and LIPP (bulk adjustment + global `G`) is a guarantee contingent on heuristics/background work. Prefer invariants.
+- **R4 — Don't over-invest in the fit.** Segmentation is solved (PGM optimal) / near-solved (RS cheap) / provably-hard-to-improve (free knots). My contribution is the *update mechanism*, not the fit.
+- **R5 — ε bounds *positions*, not *latency*.** Keep ε as the invariant I *prove*; treat latency as the evidence I *measure*. Don't claim ε solves wall-clock time.
+- **R6 — Space-honest.** Compare at *equal memory* (the ALEX-M lesson). Don't let gaps/slack inflate a fake win.
+- **R7 — count = latency only while pieces are uniform-cost.** Per-segment `G` (different eval costs) breaks "min segments = min latency." Watch this if I add `G`.
+- **R8 — deterministic guaranteed maintenance, not cost-model maintenance.** Traditional index *structures* (B+-tree, ART, hash) maintain themselves with *fixed deterministic rules that carry worst-case guarantees* (node full → split in half → provably balanced). They avoid cost models for self-maintenance *precisely because* cost models trade the guarantee away. Cost models in DBs are 45 years old — but they live at the **query-optimizer layer** (Selinger/System R), NOT at the index-structure-maintenance layer. ALEX/LIFT did something relatively novel by pushing a cost model *down into structural maintenance* — and that's exactly what I push back on. **My identity: learned *prediction* (the model, for space/speed) + traditional-style *deterministic guaranteed maintenance* (ε-violation → split, underflow → merge).** I bring the B+-tree's maintenance philosophy to the learned index's prediction. The sharpest contrast with LIFT isn't just "hard bound vs tuned knob" — it's **deterministic guaranteed maintenance vs cost-model maintenance.** Same fork, maintenance angle.
+
+---
+
+## 3. What I want (desiderata) + why + tradeoffs
+
+**⚠️ These trade off — I can't maximize all of them.** Deepest tensions: **slack/gaps (cheap in-place updates) vs density (space + fast scans)**, and **rigid/simple (concurrency + predictable writes) vs adaptive/clever (performance + robustness)**.
 
 | I want… | Why (and who showed me) | Tradeoff — what it restricts |
 |---|---|---|
-| **Hard worst-case guarantee** (ε-bound) | Predictability + robustness under drift. The 2022–25 robustness reckoning says this is *the* missing thing. PGM has it; ALEX/LIPP don't. **Non-negotiable.** | Bounds *positions*, not latency. Pay for it on *every* key. Tighter ε → more segments → more space. A fixed bound can't *adapt* to workload. |
-| **In-place updates / no read amplification** | PGM's shelf taxes *every read* `log n` — why it loses to ALEX on reads. Updates shouldn't scatter data. | Forces **pointers** (lose cache) **or gapped arrays** (lose space + scan tax) **or rebuild** (the shelf I avoid). Also makes **concurrency harder**. |
-| **Pointer-free / computed navigation** | Cache wins latency (`log²N`-beats-`logN`: big-O hides the ~80ns miss). PGM's arithmetic routing > ALEX's pointer chase. | Requires **contiguous, uniform** layout → **fights in-place mutation**. *The* central tension → forces gaps or rebuilds. |
-| **Predictable / bounded-cost writes** (no tail spikes) | LIPP's bulk adjustment + ALEX's big-node splits spike to tens of µs. Amortized-but-spiky hurts tails *and* concurrency. (A4.) | De-amortizing = **steady overhead vs rare big work** → can cost *average* throughput. *Local* merge may reclaim optimality less effectively → weaker `c·m`. |
-| **Distribution-agnostic** (no global shape) | LIPP's global `G` is a static single-shape bet that goes stale under drift. Piecewise handles arbitrary/shifting CDFs structurally. | Piecewise = **more segments = more space** than one well-fit global model. Give up "one perfect model" compactness for robustness. |
-| **Workload-adaptive** (hot/cold) | Real access is Zipfian. Put hot keys where they're cheap to reach. (A1.) | Adaptivity = **stat-tracking + restructuring** → fights **predictable writes AND concurrency**. Adds knobs (the thing I criticize in ALEX). |
-| **Concurrency-approachable** (even if v1 defers it) | Don't paint into LIPP's corner. Bounded-local writes leave room for optimistic-read + slot-locks later. | Wants **small, bounded, simple** writes → fights **rich adaptivity**. Pushes toward more *rigid* structures. |
-| **Ordered leaf-level scan** (range locality) | B+-tree links leaves → range scan walks one level. PGM gets it best (contiguous array). | Requires data **dense at one level** → **fights gaps** (ALEX's >1000-key scan cliff) and **fights in-place**. Best scans ↔ hardest updates. |
-| **Space-honest / small** | LIPP's lookup win is partly a *space* trade (equal-memory ALEX-M beats it). Any win must hold at *equal memory*. | Small space **fights gaps** (needed for in-place), **fights hot/cold redundancy**, fights insert-slack. (The ALEX-M fill-factor dial.) |
+| **Hard worst-case ε-bound** | Predictability + robustness under drift; the 2022–25 reckoning says this is *the* missing thing. PGM has it; ALEX/LIPP don't. | Bounds *positions* not latency; pay for it on *every* key; tighter ε → more segments; a fixed bound can't *adapt* to workload. |
+| **In-place / no read amplification** | PGM's shelf taxes *every read* `log n`. Want updates that don't scatter data. | Forces **pointers** (lose cache) **or gapped arrays** (lose space + scan tax) **or rebuild** (the shelf). Also makes **concurrency harder**. |
+| **Pointer-free / computed navigation** | Cache wins latency (`log²N`-beats-`logN`: big-O hides the ~80ns miss). | Requires **contiguous uniform** layout → **fights in-place mutation** (the central tension). |
+| **Predictable / bounded writes** (no tail spikes) | LIPP's bulk adjustment + ALEX's big splits spike to tens of µs. (A4) | De-amortizing → steady overhead vs rare big work → can cost *average* throughput. |
+| **Distribution-agnostic** | LIPP's global `G` is a static shape bet that goes stale + propagates. Piecewise handles any/shifting CDF structurally. | Piecewise = **more segments = more space** than one well-fit global model. |
+| **Workload-adaptive** (hot/cold) | Real access is Zipfian. (A1) | Stat-tracking + restructuring → fights **predictable writes AND concurrency**; adds knobs. |
+| **Concurrency-approachable** (v1 may defer) | Don't paint into LIPP's corner. Bounded-local writes leave room for optimistic-read + slot-locks. | Wants **small/bounded/simple** writes → fights **rich adaptivity**. |
+| **Ordered leaf-level scan** (range locality) | B+-tree links leaves → scan one level. PGM gets it best (contiguous array). | Data **dense at one level** → **fights gaps** (scan tax) + **fights in-place**. |
+| **Space-honest / small** | LIPP's lookup win is partly a *space* trade (ALEX-M beats it). | Small space **fights gaps** (needed for in-place), hot/cold redundancy, insert slack. |
 
-**Meta-point:** "in-place + pointer-free + dense + good-scans" is *over-constrained*. My design problem is *choosing where on these tradeoffs to sit*, not escaping them. **ε-bound = non-negotiable; everything else is a dial.**
+**Over-constrained meta-point:** "in-place + pointer-free + dense + good-scans" can't all max out. My job is *choosing where on these tradeoffs to sit*, with the ε-bound (R1) as the one fixed point. Everything else is a dial.
 
-**Ordered leaf-level scan — who has it:**
-| Index | Data all at leaf level? | Scan = walk one level? | Quality |
-|---|---|---|---|
-| B+-tree | yes | yes (sibling-linked) | great |
-| **PGM** | yes (sorted array) | yes (walk the array) | **best** — contiguous, pointer-free |
-| ALEX | yes (data nodes) | yes (sibling pointers) | good, gap tax → loses past ~1000-key scans |
-| LIPP | **no** (scattered, all levels) | **no** (tree-walk) | **poor** — the unified-node price |
-
-*array-backed* (PGM: scan = increment a pointer, cache-best, hard to update in place) vs *linked-node* (B+-tree/ALEX: sibling pointers, updates easier, a hop per boundary). **Design note: keep gaps in the SEGMENT index but data dense → PGM-class scans; gapping the data inherits ALEX's tax (measure it).**
+**Ordered scan — who has it:** PGM **best** (contiguous array, pointer-free) · B+-tree great (sibling-linked leaves) · ALEX good-but-gap-taxed (loses past ~1000-key scans) · LIPP **poor** (data scattered across all levels). *Design note: keep gaps in the segment index, data dense → PGM-class scans; gapping data reinherits ALEX's tax.*
 
 ---
 
-## 2. What I like (primitives to borrow) + source
+## 4. What I like (borrow) + source
 
-Full catalog in `design-primitives-parts-bin.md`.
+- **PGM** — hard ε bound · fully-learned recursive hierarchy · optimal convex-hull segmentation · **computed contiguous navigation (pointer-free)** · the free lemma (sub-range monotonicity).
+- **ALEX** — **local per-node split** (esp. split-down: add resolution locally) · gapped arrays.
+- **LIPP** — the *research pattern* "split on accuracy event → corrective balancer → proven bound" (existence-proof it's publishable) · precise-positions shows eliminating search is the biggest lookup win.
+- **B+-tree** — **incremental, local, worst-case-bounded rebalancing** (split/merge). The *good* model for the corrective op (opposite of LIPP's bulk rebuild).
+- **RadixSpline** — the radix-table routing primitive (O(1) prefix routing, pointer-free) + single-pass O(1)/element build (if I ever care about rebuild cost). *(Both donor primitives, not directions — RS is static.)*
 
-- **PGM** — hard ε bound · fully-learned recursive hierarchy (no B+-tree) · optimal convex-hull segmentation · **computed contiguous navigation (pointer-free)** · the free lemma (sub-range monotonicity).
-- **ALEX** — **local per-node splitting**, esp. **split-down** (add resolution locally, no parent disturbance) · gapped arrays.
-- **LIPP** — the *research pattern* "split on an accuracy event → corrective balancer → proven bound" (existence-proof it's publishable). And: eliminating search is the biggest single lookup win (even if LIPP's *way* is too costly).
-- **B+-tree** — **incremental, local, worst-case-bounded rebalancing** (split/merge). The *good* model for a corrective op — opposite of LIPP's bulk rebuild.
+## 5. What I want to AVOID (anti-patterns) + who taught me
 
----
-
-## 3. What I want to AVOID + who taught me
-
-- **ALEX — no error bound** → degrades under drift. *Avoid:* keep a hard bound.
-- **ALEX — reactive cost-model + magic constants** (`dₗ=0.6, dᵤ=0.8`, 50% deviation), "works in our experience"; §4.3.6 admits it mis-predicts under shift. *Avoid:* deterministic trigger, not tuned heuristic.
-- **ALEX — splits at the geometric midpoint** (a guess). *Avoid:* cut where the data dictates.
-- **PGM — the shelf → `log n` read amplification**, whole-run rebuild for one key. *Avoid:* in-place local edits.
-- **LIPP — bulk adjustment → tail spikes + concurrency-hostile** (locks a whole subtree O(n log n)). *Avoid:* local/incremental corrective op.
-- **LIPP — global `G` shape assumption** → static, drift-fragile, reintroduces tuning. *Avoid:* no global functional bet.
-- **LIPP — space-hungry + data scattered → poor scans.** *Avoid:* watch space (equal-memory) and scan locality.
-- **General:** amortized-but-spiky writes; cost-model heuristics standing in for guarantees; hardcoded distribution assumptions. **Recurring lesson: structural guarantee > hope-the-tuning-is-right.**
+- **ALEX** — no error bound (degrades under drift) · reactive cost-model with magic constants (`dₗ,dᵤ`, 50%), mis-predicts under shift · splits at geometric midpoint (a guess).
+- **PGM** — the shelf → `log n` read amplification · whole-run rebuild for one key.
+- **LIPP** — bulk adjustment → tail spikes + concurrency-hostile · global `G` shape bet (fragile, static, reintroduces tuning) · data scattered across levels → poor scans · space-hungry.
+- **RadixSpline** — radix table fails under skew (prefix-uniformity bet) · fixed table size doesn't scale.
+- **General** — amortized-but-spiky writes; cost-model heuristics standing in for guarantees; hardcoded distribution assumptions. *(→ R3.)*
 
 ---
 
-## 4. The gap I'm circling (held loosely)
+## 6. The gap I'm circling (held loosely)
 
-Nobody has all of these **at once**: *in-place updates + hard worst-case bound + pointer-free navigation + predictable bounded writes.* PGM has bound + pointer-free but pays read amplification. ALEX is in-place but unbounded/heuristic. LIPP removes search but is space-hungry, spiky, concurrency-hostile. **The white space is the intersection** — that's what I'm aiming at, not any one mechanism.
-
----
-
-## 5. THE CORE CANDIDATE (front-runner — not yet committed)
-
-> Keep ALEX's local in-place split, but make every split **preserve an ε-bound** (trigger = "a key would violate ε"; cut = where segmentation forces it), over a **pointer-free gapped *segment* array**, with a **local B+-tree-style merge** (not LIPP's bulk rebuild) as the balancer. = *ALEX's locality + PGM's guarantee + B+-tree's predictable rebalancing, distribution-agnostic.*
-
-**Why feasible — the free lemma.** Sub-range monotonicity (PGM §2.1): any sub-range of an ε-valid segment is ε-valid → splitting at *any* interior point keeps both halves ε-valid **for free.** "Does splitting preserve the bound?" is already *yes*. (Each half needs a cheap local re-fit, not a run rebuild.)
-
-**The two hard parts:**
-- **Hard Part 1 — Layout.** Pointer-free routing needs contiguous segments, but inserting a split segment shifts the array → **gapped segment array + bitmap** (ALEX's trick, one level up). Cost: gap space (quantify).
-- **Hard Part 2 — THE THEOREM (the actual contribution).** Local splits erode minimality (drift from optimal `m`). **Prove segment count stays within `c·m` under arbitrary updates, with local merge-on-underflow as the balancer.** The learned-index analog of "B-trees stay balanced." Main scientific risk; even a negative characterization is publishable. *Nobody did this — ALEX never implemented merge; LIPP merged only in bulk.*
-
-**The honest counter I keep answering:** ε bounds *positions*, not *latency* (cache misses aren't in ε). *Resolution:* ε = the **invariant I prove**; latency = the **evidence I measure**.
-
-**Why the bound is the thesis (not the split/layout):** the split is *free* (lemma), the layout is *engineering* (known parts) — the **`c·m` bound under local split+merge is the only piece that's both open AND hard AND uniquely mine.** That's the frontier.
-
-**Kept open:** could instead bound LIPP-style (precise positions + ε fallback), or go full-PGM pointer-free everywhere. Holding until I've read more.
+Nobody has all of these **at once**: *in-place updates + hard worst-case bound + pointer-free navigation + predictable bounded writes.* PGM has the bound + pointer-free but pays read amplification + rebuilds in bulk. ALEX is in-place but unbounded + heuristic. LIPP removes search but is space-hungry, spiky, concurrency-hostile. **The white space is the intersection.** Not any one mechanism — the *intersection* is the target.
 
 ---
 
-## 6. IDEAS LEDGER
+## 7. Core mechanism (leading candidate — not decided)
 
-*Every idea I've had, tagged. Scan the table; details below.*
+> *Direction, not commitment.* Keep ALEX's local in-place split, but every split **preserves a hard ε bound** (trigger = ε-violation *or* ε-proximity per I5; cut = where segmentation forces it), over a **pointer-free gapped segment array**, with a **local B+-tree-style merge** (not LIPP's bulk rebuild) as balancer. = "ALEX's locality + PGM's guarantee + B+-tree's predictable rebalancing, distribution-agnostic."
 
-| Idea | Status | One-line verdict |
-|---|---|---|
-| **Proactive ε-proximity splitting** | ⭐ promising | split *before* violating ε (when error nears the bound) → predictable writes + early drift signal, guarantee intact. **Core-adjacent.** |
-| Defer *optimization*, never the *guarantee* | ⭐ promising | background-merge to smooth writes, but always split eagerly to keep ε hard. (A4-compatible.) |
-| Per-segment adaptive transform `G` | 🔧 optional | space-only, lookup-neutral, complicates merge. Safe (PGM floor). Future-work garnish. |
-| Connected spline + per-piece `G` (greedy) | 🔧 optional | smaller (shared knots) but weakens free-split (pinned halves). Documented alternative to disjoint; pick by measurement. |
-| Relax to 2ε + dirty-flag + balancer | 🗄️ set aside | collapses into ALEX (soft bound + reactive repair); surrenders the *provable* bound. |
-| Shelf-of-RadixSplines | 🗄️ set aside | doesn't remove read amplification (the *shelf* is the problem, not the pile index). |
+**Why feasible — the free lemma (I1).** Sub-range monotonicity (PGM §2.1): any sub-range of an ε-valid segment is ε-valid → splitting at *any* interior point keeps both halves ε-valid **for free**. "Does splitting preserve the bound?" is already *yes*.
+**Precision on "free" — don't overclaim it.** The lemma covers sub-ranges of an *already-valid* segment. So a **proactive** split (I5, cutting a still-valid segment) is *literally fit-free* — both halves inherit the parent model. A **violation-triggered** split fires *because a new key broke ε*, and that key is *not* in the original valid range → the free lemma doesn't cover it → the receiving half needs a real but **local, O(segment-size)** re-fit. **Clean splits free; dirty splits cheap-and-local.**
+**Insert cost spectrum (= the real meaning of "no retrain").** Gap-hit + still within ε → *zero* model work (the common case); threatens ε but one line still covers → re-fit *one* segment; breaks ε → split → fit *two* segments; proactive cut → free. Fit cost is bounded by a single segment's size, **never by `n`.** "We don't retrain" means *never a global retrain* — only bounded local re-fit on O(1) segments.
+**Two guarantees — do not conflate them.** (1) *Each op is cheap & local* — basically follows once ops are segment-scoped → **table stakes (ALEX has it too).** (2) *Segment count stays ≤ c·m under churn* — the hard, open part → **the contribution.** Cheap-per-op is the premise that makes the question interesting; the count bound is the answer that makes it a thesis.
 
-### ⭐ Promising
+**Hard Part 1 — layout (I4): pointer-free + in-place = the empty cell.**
+*Why pointer-free at all (mechanism, not slogan):* a pointer is an arbitrary address → following it is a **dependent load** (can't compute the next address until this one returns) → a tree descent is a chain of dependent cache misses (~80–100ns each, serial, unprefetchable), cost `depth × miss`. **Computed routing** replaces the *read* of the next address with a *multiply-add on the key* (~1ns, in-register), with one memory touch at the very end. That resolves the `log²N`-beats-`logN` paradox: big-O counts steps, but a pointer step is a 100ns stall and a computed step a 1ns flop → a computed structure can do *more work* and still win wall-clock. Bonus: smaller (floats, not 8-byte pointers → more index in cache) + SIMD/prefetch-friendly. **Honest cost (R5):** pointer-free *demands* a contiguous, position-addressable layout → fights in-place mutation AND concurrency (no pointer to CAS-swap → LIFT's RCU story doesn't transfer; I'd need versioned slots over the array). A read-side, hardware-empirical bet, not a theorem.
+*Is "pointer-free AND in-place" even possible? Yes — decouple three layers.* **(1) As abstract properties: settled.** The **Packed Memory Array (PMA)** (Itai–Konheim–Rodeh 1981 → cache-oblivious B-trees) is *already* pointer-free, in-place, sorted, position-addressable, with a **proven amortized O(log²n) element-moves/update** + cache-optimal scans. A ~40-year-old witness; not a square circle. **(2) As my structure: engineering risk, not scientific** — "PGM's computed *hierarchical* routing, each level a PMA instead of a static array." Every part exists independently (computed routing = PGM; mutable pointer-free sorted array w/ proof = PMA; model→gapped-mutable-array = ALEX data nodes, pointer-free *within* a node). Unassembled because static-pointer-free people (PGM) reached for the shelf and dynamic people (ALEX/LIFT) reached for pointers — **path-dependence, not impossibility.** **(3) As the *guaranteed* structure: OPEN — that's Hard Part 2.** ⚠️ Don't let (2)'s buildability fool you into thinking (3) is done; don't let (3)'s openness scare you off (2). They're decoupled — build with confidence, prove with humility.
+*The diagonal (why the cell looks empty):* pointer-free papers (PGM, RadixSpline, RMI) are **static or shelf-dynamic**; every **in-place** paper (ALEX, LIPP, LIFT) uses **pointers.** Mutation normally *forces* pointers; I'm refusing → the gapped array is what I pay *instead of* pointers to occupy the cell. ⭐ **Use PMA, not hand-rolled gaps** — it's the version with an analyzable maintenance bound, and its density-window rebalancing analysis is a **second proof template alongside Graefe.** Cost either way: gap space (quantify); leverage: `m ≪ n` so the tax lands on the *small* segment array (shift = O(m), not O(n)).
 
-**Proactive ε-proximity splitting** *(core-adjacent — a scheduling policy for the core split)*
-- **What:** split *early* — while keys are still within ε — when the segment's error is *approaching* the bound (e.g., max or p90 prediction-error > 0.8·ε), instead of waiting for a violation.
-- **Why strong:** ✅ never violates ε (guarantee fully intact — splits *before*) · ✅ theorem stays clean (ε-valid → ε-valid) · ✅ does NOT collapse to ALEX (triggers on **ε-proximity = my actual constraint**, not on *cost*) · ✅ serves **predictable writes (A4)** by spreading split-work into calm periods instead of clustering at violations · ✅ it's **proactive** — the reactive→proactive frontier the whole field misses · ✅ ε-crowding is an **early local-drift signal** (keys pressing the bound = the line's slope no longer matches incoming data → split adapts *before* it hurts).
-- **🔑 Critical distinction — measure ε-proximity, NOT density.** "Split at 80% of the **ε-budget** (error vs bound)" = the good idea. "Split at 80% **full** (capacity)" = accidentally ALEX's `dᵤ` (wrong currency — my segments are bounded by ε-fit, not slot-count). A segment can be 80% full and ε-fine, or 30% full and ε-saturated.
-- **Only my design can do this** — you can only "split before hitting ε" if you *have* an ε to measure against. ALEX doesn't.
-- **Costs (real, tunable):** more segments → **larger `c` in the `c·m` bound** (the threshold *tunes* space-vs-predictability — a knob, but a *principled* one in ε-units). Needs a **cheap per-segment error stat** (one running number: max error). **Open Q:** *derive* the threshold (e.g. from insert rate, so expected-inserts-before-violation > split cost) rather than hand-tune it.
+**Hard Part 2 — THE theorem (I2+I3): what's *proved* vs what's *open*.** Local splits drift you off optimal `m` (boundaries land where *inserts* forced them, not where a global sweep would). The goal was **never `M = m`** — it's **`M ≤ c·m`** (bounded drift), the same bargain as a B-tree (never optimally packed, just ≥ half-full → ≤ 2× optimal node count). Giving up exact `m` isn't failure; it's the *price* that buys locality, and the bound is the proof the price is capped.
 
-**Defer the *optimization*, never the *guarantee*** *(the salvaged kernel of the 2ε idea)*
-- **What:** to smooth tail latency, run the expensive *merge/rebalance* (the `c·m`-optimality maintenance) lazily in the **background** — but always do the *split* eagerly (it's cheap — free lemma — and it's what holds ε).
-- **Why it works:** ε stays *hard at all times* (splits are synchronous); only *space-optimality* is eventually-consistent. Gives the predictable-writes win **without** making the guarantee contingent on a background process. Clean responsibility split: **ε-violation → split now (holds the bound); drift-from-optimal → merge later (holds the count).**
+**The invariant = *irreducibility*.** A segment doesn't underflow by having *too few keys* (a tiny segment may optimally cover a high-curvature region). It underflows when **a single ε-line covers it *together with* a neighbor** → "redundant," not "empty." Merge = collapse such a pair. *Irreducible* = no adjacent pair is jointly ε-coverable. (Note: irreducible ⊊ optimal — pairwise-merge-checking asks "can these two collapse to one?", never "can these three re-cut into two?"; merge removes a boundary, it can't *slide* one. So irreducible is the *achievable local* target, strictly weaker than `m`.)
 
-### 🔧 Optional (future-work garnishes — subordinate to the core)
+**Static lemma (the EASY half — falls out for free): an irreducible segmentation has `M ≤ 2m − 1`.** Charging argument off the free lemma: no optimal segment `Oᵢ` can fully contain *two* of mine (their union ⊆ `Oᵢ` is coverable by the free lemma → they'd have merged) → ≤ m of mine are "interior"; every other straddles one of the m−1 optimal boundaries → ≤ m−1 straddlers → **M ≤ 2m−1, so `c = 2`.** ⚡ *The free lemma does double duty — it makes splits free **and** bounds the count.* Scale-free: no `n` in it (insert a billion keys, `m` grows, the 2× ratio holds). ⚠️ **Originality flag:** this is *standard-flavored* (competitive analysis of interval covering) → **lit-check before claiming**; treat as **foundation-to-cite**, not the contribution.
 
-**Per-segment adaptive transform `G`** — fit `pos = A·G(k)+b` with a *fixed cheap monotone* `G` chosen *per segment* from a menu, to straighten curved regions → fewer segments → smaller index.
-- **Preserves the machinery (the non-obvious result, worth keeping):** ε-provable by convex hull run in `(G(k), p)`-space (`G` warps the **x-axis**; ε lives on the **y-axis** — untouched; constraint still linear in `(A,b)`); free split survives (sub-range monotonicity in `G`-space); **greedy stays optimal for count** (union of prefix-closed predicates is prefix-closed). Build = O(m·n) single-pass + a 2-bit tag/segment.
-- **⭐ Safety net — worst case = PGM.** `G=x` is always in the menu → a fancy `G` is chosen only if it reaches ≥ as far as linear → **segment count ≤ plain-PGM, always** (pure Pareto improvement; floor = what I'd ship anyway).
-- **Menu — cheap monotone only (hot loop!):** ✅ `x², x³`, low-degree poly, bit-shifts. ✅ **cheap log via bit tricks** — `log₂(x) ≈ highest-set-bit` (`clz`/`BSR`, ~1–3 cyc) or reinterpret-float-bits (≈ linear in `log₂`, the fast-inverse-sqrt family). *Works because `G` only needs to be log-shaped + monotone, NOT accurate* — approximation just shifts the fitted line, ε (position axis) unaffected → **heavy-tailed data reachable cheaply.** 🟡 `√x` (borderline). ❌ exact `ln`/`exp`/trig (~20–50 cyc) — but the bit-trick removes the need.
-- **Cost-benefit:** ✅ **index size down (the only real win — the ALEX-M-scrutinized axis)** · 🟡 lookup ~neutral (search still `log ε`; `G`-eval + branch *adds* hot-loop cost; **don't sell as a speed win**) · ❌ build ~m× · ❌ **merge complexity up (taxes Hard Part 2)** · ❌ count≠latency proxy breaks if transforms differ in cost · ↔️ guarantee same.
-- **Verdict:** minor space-reclamation, lookup-neutral, safe. **Not thesis material** (fit is near-solved; taxes my hardest part). Reserved optional mode, **activate only if space is a *measured* problem.** Keepers: the transform-agnostic ε+greedy proof, the bit-trick-log, and the discipline of scoping it *out*.
+**The OPEN part (the hard half — the contribution): can I *maintain* irreducibility under arbitrary insert AND delete with *bounded amortized work*** (no adversary-forced merge cascades)? The static lemma is conditional — "*if* irreducible, *then* ≤ 2m" — so **space is safe *while the invariant holds*, even adversarially**; the adversary's leverage is on the **work to hold it**, not the space. This is the genuinely-open, B-tree-balance-grade theorem and the whole game. Even a *negative* result (adversary forces M/m unbounded under any local merge policy → need non-local merge) is publishable. (ALEX never implemented merge; LIPP merged only in bulk → "nobody did this local + bounded.")
 
-**Connected spline + per-piece `G` (greedy, not optimal)** — shared knots → ~1 number/piece (smaller); drop optimality, go greedy.
-- **Greedy dissolves the build conflict:** optimal-spline-`G` falls into DP (O(n²·m), not incremental — fatal); greedy = single-pass O(m·n), incremental. ✓
-- **Residual tension (precise):** continuity *pins* each split-half at its shared knot → one fewer degree of freedom → re-fitting (old ∪ new ∪ pinned-knot) within ε is **strictly harder, sometimes infeasible** where disjoint succeeds (→ more pieces, or touch a neighbor = non-local). Disjoint's free lemma guarantees local feasibility; spline weakens it to "usually local." *(Structural to continuity — greedy-vs-optimal doesn't change it.)*
-- **Tradeoff, not conflict:** disjoint (full line/piece, **guaranteed** local split) vs spline (shared knots = **smaller**, **usually**-local split). Both single-pass.
-- **Verdict:** **default = disjoint** (the free-split lemma is the bedrock of the core). Spline+`G`+greedy = legitimate alternative for a *static*/space-critical variant, and possibly fine dynamically **if pinned-half infeasibility is rare on real data — an empirical Q to measure.** Keep both; pick by measurement.
+**Deletes = the open frontier (the subtle direction).** *Validity is delete-safe for free:* a subset of an ε-valid set is ε-valid → **a delete never breaks ε, never forces a split.** But deletes attack *optimality silently:* an insert that hurts is **loud** (breaks ε → fires → split). A delete that hurts is **silent** — it thins segments until a neighbor pair becomes mergeable, but **nothing fires** → you're reducible (M > 2m) and *not told.* So deletes cost a **detection** mechanism, not just a repair one, and the merge trigger can't be a B-tree fill-factor count — it must be the **ε-coverability test against neighbors** (strictly more work; exactly what ALEX skipped and LIPP did only in bulk). *Carry into Graefe:* his amortized split/merge accounting bounds the cost of reconciling silent shrinkage — port the *machinery*, not the (fill-factor) trigger.
 
-### 🗄️ Set aside (considered, with why — so I don't revisit blindly)
+**`c` is policy-set, not nature.** Eager-merge + reactive split → `c = 2`. Proactive split (I5) leaves deliberate redundancy + deferred merge (I6) runs a backlog → **`c = 2 + f(laziness, proactivity)`.** *Quantifying that trade is itself a publishable result.* So the sharpest statement of the contribution: **the space bound is free (`c=2` via the free lemma); the work is the theorem (cheaply maintain irreducibility under adversarial churn); and characterizing how I5/I6 move `c` off 2 is the bonus result.**
 
-**Relax to 2ε + dirty-flag + background balancer** — insert past ε, mark the segment "needs cleanup," fix later.
-- **Why set aside:** this *is* ALEX — soft bound + reactive repair (dirty-flag = cost model, balancer = ALEX's splits). **Surrenders the *provable* worst-case query bound that is my entire differentiator.** Makes the guarantee *contingent on the balancer keeping pace* — a burst/adversary outruns it, pushing keys to 2ε, 3ε, unbounded. Reintroduces the exact fragility I criticize in ALEX/LIPP. Also makes the theorem contingent (balancer-throughput-dependent) instead of structural.
-- **Salvaged kernel** → see "defer the optimization, never the guarantee" (⭐). Defer the *merge*, never the *bound*.
+**PGM does NOT already do this (vocabulary trap).** PGM's "merge" = an **LSM run-merge**: combine two doubling-size *runs* and **rebuild a static index from scratch** (Bentley–Saxe binary-counter; tombstone deletes; lookups search *all* levels → ×log n read-amp). Granularity = a level; purpose = *avoid* mutation. *My* "merge" = **local segment merge-on-underflow** (two neighbors collapse in place, O(segment), no rebuild). Opposite philosophies, same verb: PGM merges runs *so it never maintains segments*; I merge segments *so I never rebuild runs.* PGM never enters the irreducibility regime — it **discards & rebuilds to optimal-`m`** instead of maintaining. **So per-structure PGM has *fewer* segments than me (exact `m` < my 2m)** — its dividend for rebuilding. ⚠️ **I do NOT win on segment count.**
 
-**Shelf-of-RadixSplines** — make each PGM-shelf pile a RadixSpline instead of static PGM.
-- **Why set aside:** the per-pile index was never the problem — **the *shelf* (many piles → search all → `log n` read amplification) is.** Swapping the pile index doesn't touch the structural `log n`. Collapses to "RadixSpline as an LSM per-file index" (already exists; wrong side of the in-place-vs-rebuild fork). Buys none of my desiderata.
-- **Lesson:** *a component swap can't fix a problem that lives in the structure.* My thesis attacks the structure (no shelf), which is why it's the right target.
+**⚠️ Eval discipline (or I hand PGM the win).** Benchmark on **read-amplification, tail latency, write-predictability** on *one dynamic structure* — the axes where not-rebuilding pays. **Never** on raw segment count on a static snapshot, where PGM's from-scratch optimality beats me by construction. (Pairs with the "evaluate where the invariant pays" ⚠️ in the hard-invariant decision below.)
 
----
+**Global re-segmentation = optional, non-load-bearing ONLY.** It buys just the `2m → m` constant factor, at the price of an O(n) bulk pass = the LIPP/shelf tail-spike I reject (and it spends the predictable-tail-latency payoff). **Plan A (the real claim):** the local invariant alone holds ≤ 2m forever → *no global pass needed* → throw the rebuild away entirely. **Fallback only:** if the dynamic-maintenance proof fails, a periodic pass rescues space — but then the claim shrinks from "I proved local maintenance is bounded" to "I bounded it by occasionally rebuilding," half-rejoining the shelf camp I defined myself against. *Litmus (same shape as the ε-envelope): is the worst-case guarantee true at all times from the local invariant, or only right after a pass?* The latter = the shelf smuggled back in.
 
-## 7. DESIGN RAZORS (principles I keep rediscovering)
+**Proactive ε-proximity splitting (I5) — how the split could *schedule*.** Split *before* ε breaks, when keys crowd the bound (e.g. max/p90 error > 0.8ε), NOT at 80% *density* (that's accidentally ALEX's `dᵤ` — the wrong currency; measure proximity to *ε*, the actual constraint). Why it's strong: (a) **never violates ε** — splits while still valid → hard bound intact, theorem clean; (b) **doesn't collapse to ALEX** — triggers on ε-proximity, a signal only a *bounded* index can read; (c) **smooths writes (A4)** — spreads split-work into calm periods; (d) **proactive** — the reactive→proactive frontier the field misses; (e) **ε-crowding is an early drift signal** (keys pressing the bound = local distribution drifting off the line) → split adapts *before* damage. Costs: more segments → **larger `c` in the bound** (real, tunable space-vs-predictability dial, parameterized by the threshold); a cheap per-segment max-error stat; a threshold knob — but a *principled* one (in ε-units, R3-friendlier than ALEX's constants). **Open Q: derive the threshold (e.g. from insert rate) rather than tune it.**
 
-Filters for evaluating new ideas — guides, not vetoes.
+**Deferred merge (I6) — predictable writes without breaking R1.** Split *eagerly* (cheap, holds ε); defer only the **merge/rebalance** (the optimality-restoring, occasionally-cascading part) to a background pass. Guarantee always held; only *space-optimality* is eventually-consistent. Gives the tail-smoothing the 2ε idea wanted, without the guarantee-contingency that sank it (I10).
 
-1. **The hard ε-bound is non-negotiable.** It's the one thing nobody else has. The moment a key is allowed past ε "temporarily," I'm ALEX with extra steps. **Defer the *optimization*, never the *guarantee*.** Anything that makes "is every key within ε?" depend on "has the balancer caught up?" trades the crown jewel for a systems parameter.
-2. **Does this couple the pieces?** My update mechanism lives on pieces being *decoupled* enough to edit one locally. Continuity, shared knots, cross-piece optimization all *couple* → fight locality. **Disjoint segments are the default for a reason.** (Per-segment `G` passed — independent; splines couple.)
-3. **Measure ε-proximity, not density.** My segments are bounded by *ε-fit*, not slot-count. Triggers should be in *units of my guarantee* (fractions of ε), not capacity %. (Density % = accidentally importing ALEX's currency.)
-4. **Don't over-invest in the fit.** Segmentation is solved (PGM optimal) / near-solved (RadixSpline cheap) / provably-hard-to-improve (free-knot). The novelty is the **update mechanism**, not the fit. Treat fit choices as settled components; aim originality at split/merge/structure.
-5. **Be space-honest.** Compare at *equal memory* (the ALEX-M lesson). Don't let gap-space inflate a fake win. Space is the axis the field scrutinizes hardest.
-6. **Proactive > reactive, where compatible.** Anticipating (split before violation) beats repairing-after (ALEX cost model, LIPP bulk adjustment) — *if* it preserves the guarantee. The useful "intelligence" is predicting where to split, not a bigger model.
-7. **Structural guarantee > hope-the-tuning-is-right.** The thread through every anti-pattern. A bound that holds by construction beats a heuristic that holds in practice.
+**Honest counter (R5).** ε bounds positions, not latency. Resolution: ε is the **invariant I prove**; latency is the **evidence I measure**.
+
+**Other shapes kept open:** bound LIPP-style (precise positions + ε fallback), or full-PGM pointer-free everywhere. Holding open until I've read more.
+
+**[DECISION] The ε-bound is a HARD INVARIANT — committed.** Not a tuned knob (LIFT), not emergent (ALEX): every key within ε *always, by construction*, under arbitrary updates. *Why this, not LIFT's cost-model (which works well):* the invariant buys what a cost model structurally can't — (1) **adversarial robustness** (LIFT defends poisoning attacks *empirically* = only tested inputs; an invariant holds against *any* input, incl. unimagined ones — exactly what "unpredictable future key distributions" demands); (2) **predictable tail latency** (bounded worst-case search per key, not just low average); (3) **composability** (a hard-bounded component can be a primitive in a guaranteed system; an empirically-robust one can't — *this is why the thesis matters beyond itself*). *Honest cost:* the invariant is NOT free — split eagerly, pay on every key, may be bigger/slower on *average-case* benchmarks. So I do NOT claim to beat LIFT on its turf (avg-case time-space tradeoff); I claim a turf LIFT *can't* occupy (provable worst-case robustness). **⚠️ Evaluate on the regime where the invariant pays (adversarial / tail-latency / worst-case), not just avg-case — else I make my own contribution look weak.** Razor #1 is now a hard *constraint*, not a goal: every design choice is asked "does this preserve the bound?"
+
+**Hybrid door (held loosely — readings may surface a clean one).** A hybrid is legitimate iff: **cost-model the DIALS, never the GUARANTEE.** ε stays an invariant; everything it leaves *unconstrained* (gap/density, *when* to merge, hot/cold tiering) is fair game for LIFT-style cost-model tuning. Two natural forms: (a) hard ε on positions + cost-model on the free parameters; (b) hard ε as the floor (the PGM-floor safety net), cost-model picks *among* equally-ε-valid options for better average behavior. Any hybrid that makes the *bound itself* contingent on the cost model = the 2ε trap (collapses to ALEX, set-aside in the Ledger). Any hybrid that optimizes *within* the bound = fine.
+
+**[DECISION] How ε's *value* is chosen — auto-derived from a budget, frozen; runtime cost-model only inside a fixed envelope.** ε must NOT be a user-typed magic number, and the way I avoid that must not smuggle in LIFT's mistake. **Default (safe, probably what I want):** derive ε *once* at build from a **space/latency budget** (PGM §6 — power-law + root-find) and **freeze it**. A frozen constant leaves the `c·m` proof completely untouched — *the proof never cared who picked the constant, only that it's fixed.* No runtime cost model needed to escape "user-decided." **Optional adaptive mode (only if I want per-node / hot-cold ε):** a runtime cost model may pick ε **iff it picks from a fixed, workload-independent envelope `[ε_min, ε_max]`**, both endpoints constants set *before any input*. Then — the **litmus that decides everything** — *is the bound on the cost model a fixed constant, or a quantity the workload can move?*
+- **Fixed envelope → proof survives**, but mind *what* is proven: the **guarantee** I can claim is the one at **ε_max** (loosest — an adversary can drive the model to its loose end); the **segment-count bound** is stressed at **ε_min** (tightest → most segments). Both endpoints fixed → both proofs hold. The cost model's choices *inside* the envelope are a **pure average-case optimization that cannot make the worst case worse than the envelope.** This is the concrete instance of the hybrid rule above, and it can *serve* hot/cold (A1): tight ε hot = fast lookups, loose ε cold = compact, all still bounded. So I'd be optimizing the average case *inside* a worst-case skeleton — both, in the right layers.
+- **Moving envelope → fatal (= I10 / the 2ε trap).** The moment the cost model may *raise* ε_max because "splitting is too expensive right now," there is no fixed ceiling, the adversary inserts under pressure, the model keeps loosening ε to dodge the split, ε → unbounded → ALEX with extra steps. `pick ε ∈ [4,64]` (fixed) = safe; `pick ε to minimize current insert cost` (unbounded above) = cliff.
+
+**Sharpest LIFT line (carries the whole differentiation):** LIFT picks ε via a cost model with *no fixed input-independent ceiling* — which is *exactly* why it has no worst-case bound. The **clamp to a fixed envelope is the one thing LIFT didn't do**, and it *is* the difference between "I bound the worst case" and "I'm LIFT." Adding a cost model for ε does not blur the fork *if* the clamp is a constant; it sharpens it. ✅ **Homework RESOLVED (full read, §4.2):** ε **floats** — LIFT picks it by *minimizing the memory-access count* `L(ε)` (Eq 6), which depends on `K_leaf` → data-dependent, **no fixed ceiling.** The `ε < 64` I saw is an *empirical observation* of where the cost-min landed on their datasets (used only to linearize `E = δεd`, Eq 8), **not a designed clamp.** → LIFT is the **"structurally can't have a worst-case bound"** branch → my fixed-envelope is a *fork they never took*, not a patch. **Precision (don't overclaim):** at *build* time PLA enforces ε as a hard max-error for the cost-chosen ε → their leaves *are* ε-bounded at construction; they just never **maintain** it under updates (density drifts → `E = δεd` moves → nothing re-bounds). **Build-time bound ✓; maintained-under-updates invariant ✗ — and that gap is the whole thesis.** (Full per-paper notes: `lift-notes.md`.)
 
 ---
 
-## 8. Still need to read before I commit
+## 8. Enhancements & alternatives (secondary — detail behind the 🟡 Ledger rows)
 
-Any could change or kill the front-runner:
-- **SIGMOD'26 "Updatable Learned Index for Time-Space Tradeoff"** — ⚠️ **SCOOP CHECK, highest priority.** Closest published cousin; did they already prove my theorem?
-- **The two robustness papers, in full** (Are-Ready, Robustness Issues) — they *define the bar* + the equal-memory (ALEX-M) methodology. Mandatory.
-- **B-tree split/merge amortized analysis** — the *proof template* for the `c·m` bound (treat as a math read; arguably more important than any learned-index paper now).
-- **RadixSpline** — *(done — static/LSM, donates the radix-routing primitive; on the wrong side of my fork, doesn't threaten the theorem.)*
-- *Then* decide — and only then promote front-runner → thesis.
+### 8a. Per-segment adaptive transform `G` (I7) — optional space mode
+Fit `pos = A·G(k) + b`, `G` a cheap monotone transform chosen per segment from a menu.
+- **Preserves the machinery (proved):** convex hull runs identically in `(G(k), p)`-space (G warps the x-axis; ε lives on the y-axis/positions — untouched); constraint stays linear in (A,b); `G(sorted)` still sorted; free lemma holds in `G`-space; greedy stays **optimal for count** (union of prefix-closed predicates is prefix-closed). Build O(m·n), single-pass; 2-bit tag/segment.
+- **⭐ Safety net — worst case = PGM:** `G=x` always in the menu → fancy `G` chosen only if it reaches ≥ as far → **segment count ≤ plain-PGM, always** (pure Pareto improvement on count). Safe; only operational costs.
+- **Menu (hot-loop eval cost):** ✅ `x², x³`, low-deg poly, bit-shifts (~1–3 cyc); ✅ **cheap log via bit tricks** — `log₂≈` highest-set-bit (`clz`/`BSR`, ~1–3 cyc) or float-bits-as-int (fast-inv-sqrt family) — monotone, log-shaped, dirt cheap, *works because `G` needs shape+monotonicity not accuracy* (ε unaffected, R5) → **heavy-tailed data reachable cheaply**; 🟡 `√x` (~10–20 cyc); ❌ exact `ln/exp/trig` (~20–50 cyc, but bit-trick removes the need).
+- **Cost-benefit:** ✅ index size **down** (main win, the R6 axis) · 🟡 lookup ~neutral (search still `log ε`; `G`-eval + branch can self-cancel — **don't sell as a lookup win**) · ❌ build ~m× · ❌ **merge harder** (m-way union check — taxes Hard Part 2) · ❌ breaks count=latency (R7) · ↔️ guarantee same (PGM floor).
+- **Verdict:** minor space-reclamation, lookup-neutral, safe, complicates merge → **NOT core**; reserved mode, activate only if space is a *measured* problem. Keepers: the transform-agnostic proof, the bit-trick-log unlock, and the discipline of scoping it out.
+- **8a-Tier2 (I8):** cost-aware selection ("use pricey `G` only if it saves ≥ threshold") — safe (PGM floor) but adds a knob + workload dependency + breaks the clean count proof. A **fixed threshold beats a tunable λ**; and excluding expensive transforms leaves little to adjudicate. **Default skip.**
+
+### 8b. Connected spline + per-piece `G`, greedy (I9) — documented alternative
+Spline (shared knots → ~1 number/piece → smaller) + per-piece `G`, **greedy not optimal**.
+- **Going greedy fixes the build:** optimal+continuity+`G` → coupled DP (I13, fatal). Greedy → single-pass O(m·n), incremental. Recovers what optimal-spline killed.
+- **Residual tension (R2) — pinned halves weaken free-split:** disjoint segments give the split-half *full re-fit freedom* → free lemma guarantees local feasibility. A spline pins the split-half at its shared knot → one less DOF → fitting (old ∪ new ∪ pinned-knot) within ε is harder, *sometimes infeasible* → needs more pieces or neighbor propagation (non-local). Structural to continuity; greedy-vs-optimal doesn't change it.
+- **Clean tradeoff:** disjoint = strong guarantee, more space · spline = weaker guarantee, less space. Both single-pass.
+- **Verdict:** **default = disjoint** (the free-split lemma is foundational — bedrock of I1/I3; trading "guaranteed local split" → "usually local" for bytes is bad for the *dynamic* core). Spline+`G`+greedy is a legitimate alternative — good for a *static*/space-critical variant, possibly fine dynamically **if pinned-half infeasibility is rare on real data** → **empirical question for the prototype.** Keep both; pick by measurement.
+
+---
+
+## 9. Still need to read before I commit
+
+Any could redirect or kill the front-runner — that's why they're first:
+- **LIFT — "High Performance or Low Memory?" (Wang et al., PACMMOD 2025, DOI 10.1145/3769800)** — ✅ **READ IN FULL + SCOOP RESOLVED: clear but adjacent.** Closest published cousin; full per-paper notes in `lift-notes.md`. Cost-model-driven: build-time theory (pick ε + density `d` to minimize `COST = Perf^γ·Space`) + **heuristic** update maintenance. **ε-clamp verdict (§4.2):** ε *floats* (picked by minimizing `L(ε)`, Eq 6, `K_leaf`-dependent); `ε<64` is empirical, not a clamp → **structurally no worst-case bound** (build-time PLA bound, never *maintained* under updates). They **admit my gap verbatim:** *"insert performance is difficult to model accurately through theoretical analysis"* (§4.2/§4.4) — cite it as motivation. **Differentiation line:** *LIFT minimizes the average case via a build-time cost model + heuristic update maintenance; I bound the worst case via a maintained invariant (R8).* ✅ **I5 homework RESOLVED:** theirs = insertion-rate node *sizing* (Eq 1–2) fired *downstream* of density/cost triggers, + FMCD grow-down (single-pointer case); mine = ε-proximity *split timing* *as* the trigger, for a *guarantee* — orthogonal roles. **Eq 2 is even borrowable** as a permitted dial (tunes gap budget, touches no bound). Other confirmed facts: pointer-routed (my pointer-free angle untouched); **no merge of adjacent segments** (delete only contracts within-node → my local-merge + silent-delete problem unoccupied even here); duplicates → **append-only escape** (drops the position bound → validates my vertical-jump / out-of-band conclusion; my S1/S3 keeps the bound). 🟢 **Referee risk to pre-load:** their empirical defense (robustness <1.3, even retrofit as ALEX-IR) is strong → answer *"why a proof?"* with **different kind of result** (any input / tail latency / composability), **never a better ratio** (their turf). ⚠️ **Eval discipline:** they only measure the `COST` surface + memory-blowup ratio — never tail-latency or adversarial segment-count growth → benchmark where they didn't.
+- **⭐ Yang, Kornaropoulos & Cheng — Algorithmic Complexity Attacks on Dynamic Learned Indexes (PVLDB 17(4), 2023)** — **NEW TOP PRIORITY (next read).** *The adversarial worst-case model.* My `c·m` theorem must hold under *arbitrary = adversarial* updates; this is the adversary (dense/duplicate-key attacks that OOM ALEX). The invariant's main payoff is adversarial robustness — can't prove it against an attack I haven't read. LIFT defends these *empirically*; I'd defend *by construction*.
+- **Robustness pair, in full** (Wongkham — Are-Ready, PVLDB 2022; Luo — Robustness Issues, PACMMOD 3(4) 2025) — define the bar + the equal-memory (ALEX-M) methodology. My evaluation spec.
+- **Graefe — Modern / More Modern B-tree techniques (FnT Databases, 2011/2024)** — the *proof template* for the `c·m` bound (split/merge amortized analysis + fill-factor theory). Treat as a math read; it's about my actual hard problem. *(LIFT cites these — they're the canonical B-tree-maintenance reference.)*
+- **Hyper (Zhang et al., PACMMOD 2(3), 2024)** — second-closest cousin (also time-space tradeoff, hybrid two-stage build). Read to complete the differentiation. Not open-source.
+- *Then* decide — promote from "front-runner" to "thesis."
+- *(Lower priority, skim for primitives: Ge et al. "Cutting Learned Index into Pieces" ICDE 2023 — design-space breakdown from the LIFT group; BOURBON — A1/LSM ground; NFL/RUSLI/CARMI/SALI/DILI — lineage context.)*
 
 ---
 
 ## One-line stance
-> *A learned index that is in-place, worst-case-bounded, pointer-free, and predictable — PGM's guarantee + ALEX's locality + B+-tree's rebalancing, avoiding ALEX's heuristics, PGM's read amplification, and LIPP's bulk-rebuild spikes. Core = ε-preserving local split + local merge, feasible by sub-range monotonicity; the contribution is the `c·m` bound. Not committing until the literature's done.*
+> *I want a learned index that is in-place, worst-case-bounded, pointer-free, and predictable — keeping PGM's guarantee and ALEX's locality while avoiding ALEX's heuristics, PGM's read amplification, and LIPP's bulk-rebuild spikes. The leading candidate is ε-preserving local split + local merge, made feasible by sub-range monotonicity, with the **segment-count bound as the real theorem** — but I'm not committing until the scoop check and robustness papers are done.*
